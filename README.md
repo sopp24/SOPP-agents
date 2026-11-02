@@ -18,9 +18,11 @@ Le symbole SOPP fourni est décliné en assets/brand-mark.webp pour l'affichage 
 
 ## Déploiement GitHub Pages
 
-Le workflow .github/workflows/deploy-pages.yml publie automatiquement le contenu du dépôt sur GitHub Pages à chaque push sur main, et peut aussi être lancé manuellement depuis l'onglet Actions. Il utilise les actions officielles GitHub Pages et tente d'activer Pages pour le dépôt si ce n'est pas déjà fait.
+Le workflow .github/workflows/deploy-pages.yml publie automatiquement le contenu du dépôt sur GitHub Pages à chaque push sur main, et peut aussi être lancé manuellement depuis l'onglet Actions. Il utilise les actions officielles GitHub Pages.
 
-Adresse prévue : https://sopp24.github.io/SOPP-agents/.
+**Activation initiale requise une seule fois :** dans le dépôt, ouvre Settings → Pages, puis dans Build and deployment sélectionne **GitHub Actions** comme Source et enregistre. Le jeton standard du workflow ne possède pas les permissions d'administration nécessaires pour créer lui-même un site Pages qui n'a jamais été activé ; cette sélection doit donc être faite par un administrateur du dépôt.
+
+Ensuite, l'adresse du site est : https://sopp24.github.io/SOPP-agents/. Le workflow se lancera automatiquement à chaque nouveau push sur main ; pour publier immédiatement après l'activation, lance aussi **Deploy SOPP Agents to GitHub Pages → Run workflow** dans l'onglet Actions.
 
 ## Recherche
 
