@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#08090b">
+  <meta name="description" content="SOPP Agents — bibliothèque des applications web développées par Adam Soppelsa.">
+  <meta property="og:title" content="SOPP Agents">
+  <meta property="og:description" content="Toutes les applications web développées par Adam Soppelsa.">
+  <meta property="og:type" content="website">
+  <title>SOPP Agents — Adam Soppelsa</title>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <link rel="preload" href="assets/chrome-wave.svg" as="image" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <div class="chrome-background" aria-hidden="true"></div>
+  <header class="topbar">
+    <a class="brand-link" href="./" aria-label="SOPP Agents, accueil"><img src="assets/brand-mark.png" alt="Logo SOPP" class="brand-mark"></a>
+    <a class="github-access" href="https://github.com/sopp24?tab=repositories" target="_blank" rel="noopener noreferrer"><span class="external-arrow" aria-hidden="true">↗</span><span>Accès aux répertoires GitHub</span></a>
+    <a class="linkedin-access" href="https://www.linkedin.com/in/adam-soppelsa-67856a257/" target="_blank" rel="noopener noreferrer" aria-label="Profil LinkedIn d’Adam Soppelsa"><img src="assets/linkedin.png" alt="LinkedIn"></a>
+  </header>
+  <main class="page-content">
+    <section class="hero" aria-labelledby="page-title">
+      <img src="assets/brand-mark.png" class="hero-mark" alt="" aria-hidden="true">
+      <h1 id="page-title">SOPP Agents</h1>
+      <p class="subtitle">Toutes les applications web développées par Adam Soppelsa.</p>
+    </section>
+    <section class="library-panel" aria-label="Bibliothèque des applications">
+      <div class="search-wrap">
+        <label class="visually-hidden" for="app-search">Rechercher une application</label>
+        <span class="search-symbol" aria-hidden="true">⌕</span>
+        <input id="app-search" class="app-search" type="search" placeholder="De quelle application as-tu besoin ?" autocomplete="off" spellcheck="false" aria-controls="spotlight-results" aria-expanded="false" aria-autocomplete="list" role="combobox">
+        <kbd class="search-shortcut" aria-hidden="true">⌘ K</kbd>
+        <button class="clear-search" type="button" aria-label="Effacer la recherche" hidden>×</button>
+      </div>
+      <div class="spotlight-results" id="spotlight-results" role="listbox" aria-label="Résultats de recherche" hidden>
+        <div class="results-heading"><span>Applications</span><span class="results-count">5 disponibles</span></div>
+        <div class="results-list"></div>
+        <div class="results-hint"><span>↑ ↓ naviguer</span><span>↵ ouvrir</span><span>esc fermer</span></div>
+      </div>
+      <div class="library-toolbar"><span class="library-heading">Ma bibliothèque</span><span class="library-count">05 applications</span></div>
+      <div class="app-grid" id="app-grid" aria-live="polite"></div>
+      <p class="empty-state" id="empty-state" hidden>Aucune application ne correspond à cette recherche.</p>
+      <div class="panel-footer"><span><i class="status-dot"></i> Bibliothèque personnelle</span><span>Sélectionne une application pour l’ouvrir</span></div>
+    </section>
+    <footer class="page-footer"><span>Conçu et développé par <strong>Adam Soppelsa</strong></span><span class="footer-separator" aria-hidden="true">·</span><a href="https://github.com/sopp24?tab=repositories" target="_blank" rel="noopener noreferrer">GitHub</a></footer>
+  </main>
+  <noscript><p class="no-script">Active JavaScript pour utiliser la recherche et ouvrir les applications depuis la bibliothèque.</p></noscript>
+</body>
+</html>
