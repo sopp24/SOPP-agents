@@ -24,6 +24,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Generate favicon and installation icons from logo-app.webp
+        run: |
+          python -m pip install --disable-pip-version-check Pillow
+          python scripts/generate_icons.py
+
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
 
