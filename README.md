@@ -6,11 +6,12 @@ Bibliothèque personnelle des applications web développées par Adam Soppelsa.
 
 - **ActuSUP** — veille des communicants, articles de médias francophones, recherche, filtres et baromètre des sujets.
 - **Cocon-S-mantique-Studcorp** — carte mentale éditoriale STUDCORP : blog, mots-clés, pages et articles.
+- **DRESSOPP** — assistant personnel de style : découverte de vêtements, apprentissage des préférences, garde-robe et tenues inspirées du tableau Pinterest `mode`.
 - **G.E.N.I.S** — assistant personnel web installable, conversation vocale et textuelle, mémoire locale et outils IA.
 - **ITSoppSTUDCORP** — cartes mentales interactives EcoSTUD et MediSTUD autour de la mobilité étudiante.
 - **SOPP-Language** — interprète multilingue avec traduction orale, conversation, texte et documents.
 
-La bibliothèque et la recherche affichent ces cinq applications dans le même ordre alphabétique.
+La bibliothèque et la recherche affichent ces six applications dans le même ordre alphabétique.
 
 ## Icônes et installation
 
