@@ -13,18 +13,6 @@ Bibliothèque personnelle des applications web développées par Adam Soppelsa.
 
 La bibliothèque et la recherche affichent ces six applications dans le même ordre alphabétique.
 
-## Icônes et installation
-
-Le logo de l'onglet et les icônes d'installation sont dérivés de **assets/logo-app.webp**.
-Le workflow génère les formats PNG et ICO nécessaires aux navigateurs et aux raccourcis d'écran d'accueil :
-
-- favicon PNG 32 × 32 et favicon ICO multi-tailles ;
-- icône Apple Touch 180 × 180 pour iPhone et iPad ;
-- icônes PWA Android et bureau 192 × 192 et 512 × 512, avec une variante maskable ;
-- tuile Windows 150 × 150.
-
-Les fichiers dérivés sont créés automatiquement dans `assets/` lors de chaque déploiement, sans altérer le fichier source.
-
 ## Développement
 
 Le site est statique et ne nécessite aucune compilation JavaScript. Les fichiers principaux sont `index.html`, `styles.css` et `app.js`. Le fond est un SVG créé pour le site (`assets/chrome-wave.svg`) afin de rester net sur les écrans haute définition.
