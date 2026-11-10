@@ -15,7 +15,7 @@
   button.removeAttribute("tabindex");
 
   const STORAGE_KEY = "sopp-agents-home-button-position-v1";
-  const HOLD_DURATION = 2000;
+  const HOLD_DURATION = 1000;
   const MOVE_THRESHOLD = 10;
   const EDGE_PADDING = 8;
 
