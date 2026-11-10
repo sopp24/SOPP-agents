@@ -13,6 +13,16 @@ Bibliothèque personnelle des applications web développées par Adam Soppelsa.
 
 La bibliothèque et la recherche affichent ces six applications dans le même ordre alphabétique.
 
+## Bouton de retour partagé
+
+Les applications qui affichent le bouton de retour vers SOPP Agents utilisent le script commun `sopp-home-float.js`. Il s'active lorsque l'application est ouverte avec le paramètre `?from=sopp-agents`. Un clic normal renvoie vers le hub ; un appui maintenu pendant 2 secondes permet de déplacer le bouton. Sa position est mémorisée localement et reste dans les limites de la fenêtre. Le bouton existant conserve son apparence et son logo.
+
+Pour l'intégrer dans une application, ajouter le lien portant la classe `.sopp-home-float` et charger le script commun :
+
+```html
+<script src="https://sopp24.github.io/SOPP-agents/sopp-home-float.js" defer></script>
+```
+
 ## Développement
 
 Le site est statique et ne nécessite aucune compilation JavaScript. Les fichiers principaux sont `index.html`, `styles.css` et `app.js`. Le fond est un SVG créé pour le site (`assets/chrome-wave.svg`) afin de rester net sur les écrans haute définition.
