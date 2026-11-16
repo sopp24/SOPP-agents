@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2480" height="3508" viewBox="0 0 2480 3508">
+<defs>
+  <linearGradient id="amber" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#11131b"/><stop offset=".22" stop-color="#493025"/>
+    <stop offset=".46" stop-color="#bd8150"/><stop offset=".51" stop-color="#e1b77e"/>
+    <stop offset=".58" stop-color="#684332"/><stop offset="1" stop-color="#090c14"/>
+  </linearGradient>
+  <linearGradient id="teal" x1="0" y1="0" x2="1" y2=".4">
+    <stop offset="0" stop-color="#080e19"/><stop offset=".25" stop-color="#163b48"/>
+    <stop offset=".46" stop-color="#368d96"/><stop offset=".51" stop-color="#a2d7d1"/>
+    <stop offset=".58" stop-color="#3d6874"/><stop offset="1" stop-color="#080c17"/>
+  </linearGradient>
+  <linearGradient id="violet" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#090b18"/><stop offset=".25" stop-color="#28213d"/>
+    <stop offset=".47" stop-color="#72527d"/><stop offset=".52" stop-color="#c78db7"/>
+    <stop offset=".6" stop-color="#493957"/><stop offset="1" stop-color="#090b16"/>
+  </linearGradient>
+  <linearGradient id="silver" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#080b13"/><stop offset=".34" stop-color="#728596"/>
+    <stop offset=".49" stop-color="#e1e8e8"/><stop offset=".54" stop-color="#6d8291"/>
+    <stop offset=".75" stop-color="#172031"/><stop offset="1" stop-color="#05070d"/>
+  </linearGradient>
+  <linearGradient id="edge" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0" stop-color="#c68c5c"/><stop offset=".34" stop-color="#aab9c5"/>
+    <stop offset=".68" stop-color="#82cbd0"/><stop offset="1" stop-color="#d29ac1"/>
+  </linearGradient>
+  <radialGradient id="ambient" cx=".5" cy=".42" r=".72">
+    <stop offset="0" stop-color="#202034" stop-opacity=".56"/>
+    <stop offset=".58" stop-color="#090b14" stop-opacity=".2"/>
+    <stop offset="1" stop-color="#020308" stop-opacity="0"/>
+  </radialGradient>
+  <filter id="shadow" x="-35%" y="-35%" width="170%" height="170%">
+    <feGaussianBlur stdDeviation="58"/>
+  </filter>
+  <filter id="glow" x="-35%" y="-35%" width="170%" height="170%">
+    <feGaussianBlur stdDeviation="18"/>
+  </filter>
+</defs>
+<rect width="2480" height="3508" fill="#04060c"/>
+<rect width="2480" height="3508" fill="url(#ambient)"/>
+<!-- Sculptural metallic ribbons echo the SOPP Agents chrome-wave artwork. -->
+<g fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M-500 100 C180 260 570 700 510 1170 C460 1610 60 1910 -420 2240" stroke="#000" stroke-width="470" opacity=".9" filter="url(#shadow)"/>
+  <path d="M-500 100 C180 260 570 700 510 1170 C460 1610 60 1910 -420 2240" stroke="url(#amber)" stroke-width="390"/>
+  <path d="M-500 100 C180 260 570 700 510 1170 C460 1610 60 1910 -420 2240" stroke="url(#silver)" stroke-width="8" opacity=".6"/>
+
+  <path d="M-300 1650 C280 1260 720 1440 1110 1730 C1510 2030 1880 1960 2200 1570 C2400 1320 2510 1080 2780 900" stroke="#000" stroke-width="500" opacity=".92" filter="url(#shadow)"/>
+  <path d="M-300 1650 C280 1260 720 1440 1110 1730 C1510 2030 1880 1960 2200 1570 C2400 1320 2510 1080 2780 900" stroke="url(#teal)" stroke-width="410"/>
+  <path d="M-300 1650 C280 1260 720 1440 1110 1730 C1510 2030 1880 1960 2200 1570 C2400 1320 2510 1080 2780 900" stroke="url(#edge)" stroke-width="7" opacity=".78"/>
+
+  <path d="M280 3820 C560 3070 700 2570 1080 2240 C1460 1910 1820 2020 2180 1700 C2440 1460 2600 1190 2830 920" stroke="#000" stroke-width="420" opacity=".88" filter="url(#shadow)"/>
+  <path d="M280 3820 C560 3070 700 2570 1080 2240 C1460 1910 1820 2020 2180 1700 C2440 1460 2600 1190 2830 920" stroke="url(#violet)" stroke-width="340"/>
+  <path d="M280 3820 C560 3070 700 2570 1080 2240 C1460 1910 1820 2020 2180 1700 C2440 1460 2600 1190 2830 920" stroke="#d2a0c7" stroke-width="5" opacity=".5"/>
+
+  <path d="M-350 2960 C260 2640 670 2770 1090 3060 C1510 3350 2020 3260 2390 2960 C2580 2800 2700 2650 2910 2600" stroke="#000" stroke-width="330" opacity=".8" filter="url(#shadow)"/>
+  <path d="M-350 2960 C260 2640 670 2770 1090 3060 C1510 3350 2020 3260 2390 2960 C2580 2800 2700 2650 2910 2600" stroke="url(#silver)" stroke-width="270" opacity=".86"/>
+</g>
+<g fill="none" stroke-linecap="round" opacity=".56">
+  <path d="M-485 80 C195 240 588 690 526 1170 C478 1625 72 1930 -410 2260" stroke="#e0b98b" stroke-width="4"/>
+  <path d="M-285 1620 C295 1235 733 1410 1125 1700 C1515 1985 1870 1915 2185 1545 C2400 1290 2525 1060 2790 880" stroke="#9bd9db" stroke-width="4"/>
+  <path d="M300 3800 C585 3060 720 2550 1095 2225 C1475 1900 1840 2000 2195 1680 C2460 1440 2615 1175 2840 900" stroke="#d9a6cc" stroke-width="4"/>
+  <path d="M-330 2980 C275 2660 685 2790 1100 3075 C1515 3350 2035 3275 2405 2980 C2590 2825 2710 2675 2925 2620" stroke="#b6c5cf" stroke-width="3"/>
+</g>
+<!-- Restrained atmospheric sheen, with a quiet central field for overlaid content. -->
+<ellipse cx="1250" cy="1740" rx="920" ry="1180" fill="#05070d" opacity=".24" filter="url(#glow)"/>
+<rect width="2480" height="3508" fill="#02040a" opacity=".25"/>
+</svg>
