@@ -9,9 +9,10 @@ Bibliothèque personnelle des applications web développées par Adam Soppelsa.
 - **DRESSOPP** — assistant personnel de style : découverte de vêtements, apprentissage des préférences, garde-robe et tenues inspirées du tableau Pinterest `mode`.
 - **G.E.N.I.S** — assistant personnel web installable, conversation vocale et textuelle, mémoire locale et outils IA.
 - **ITSoppSTUDCORP** — cartes mentales interactives EcoSTUD et MediSTUD autour de la mobilité étudiante.
+- **PIMIENTOS** — compagnon de voyage : carte, étapes, météo, budget, checklist, liens de transport et agent IA avec recherche web.
 - **SOPP-Language** — interprète multilingue avec traduction orale, conversation, texte et documents.
 
-La bibliothèque et la recherche affichent ces six applications dans le même ordre alphabétique.
+La bibliothèque et la recherche affichent ces sept applications dans le même ordre alphabétique.
 
 ## Bouton de retour partagé
 
