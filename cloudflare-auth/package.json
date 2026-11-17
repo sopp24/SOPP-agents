@@ -1,0 +1,16 @@
+{
+  "name": "sopp-agents-auth",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "db:init": "wrangler d1 execute sopp-agents-auth --remote --file=./schema.sql"
+  },
+  "dependencies": {
+    "@simplewebauthn/server": "14.1.0"
+  },
+  "devDependencies": {
+    "wrangler": "^4.0.0"
+  }
+}

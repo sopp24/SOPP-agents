@@ -1,0 +1,14 @@
+name = "sopp-agents-auth"
+main = "src/index.js"
+compatibility_date = "2026-11-17"
+compatibility_flags = ["nodejs_compat"]
+
+[vars]
+ALLOWED_ORIGIN = "https://sopp24.github.io"
+RP_ID = "sopp24.github.io"
+RP_NAME = "SOPP Agents"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "sopp-agents-auth"
+database_id = "REPLACE_WITH_CLOUDFLARE_D1_DATABASE_ID"
