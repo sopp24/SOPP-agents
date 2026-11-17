@@ -160,3 +160,8 @@ html.biometric-locked body > :not(#biometric-lock) {
     transition: none;
   }
 }
+
+
+html:not(.biometric-locked) .biometric-lock {
+  display: none;
+}
