@@ -42,10 +42,6 @@ function fromBase64url(value) {
   return Uint8Array.from(binary, (char) => char.charCodeAt(0));
 }
 
-function randomBytes(length = 32) {
-  return crypto.getRandomValues(new Uint8Array(length));
-}
-
 async function hmac(secret, value) {
   const key = await crypto.subtle.importKey(
     "raw",
@@ -98,6 +94,7 @@ async function rateLimit(request, env) {
     "window_start = excluded.window_start",
   ).bind(key, windowStart).run();
   const row = await env.DB.prepare("SELECT attempts FROM rate_limits WHERE key = ?").bind(key).first();
+  await env.DB.prepare("DELETE FROM rate_limits WHERE window_start < ?").bind(windowStart - 24 * 60 * 60).run();
   return Number(row?.attempts || 0) <= RATE_LIMIT;
 }
 
@@ -161,7 +158,8 @@ async function handle(request, env) {
     return new Response(null, { status: 204, headers });
   }
 
-  if (origin !== env.ALLOWED_ORIGIN) return json({ error: "ORIGIN_NOT_ALLOWED" }, 403);
+  const isHealthCheck = url.pathname === "/health" && request.method === "GET";
+  if (origin !== env.ALLOWED_ORIGIN && !(isHealthCheck && !origin)) return json({ error: "ORIGIN_NOT_ALLOWED" }, 403);
   if (!env.DB || !env.SESSION_SECRET || env.SESSION_SECRET.length < 32) {
     return json({ error: "SERVER_NOT_CONFIGURED" }, 503, headers);
   }
@@ -214,7 +212,7 @@ async function handle(request, env) {
 
     const credential = verification.registrationInfo.credential;
     await env.DB.prepare(
-      "INSERT INTO credentials (id, public_key, counter, transports, device_type, backed_up, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      "INSERT INTO credentials (slot, id, public_key, counter, transports, device_type, backed_up, created_at) VALUES (1, ?, ?, ?, ?, ?, ?, ?)",
     ).bind(
       credential.id,
       base64url(credential.publicKey),

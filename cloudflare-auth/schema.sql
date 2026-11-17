@@ -1,7 +1,8 @@
 PRAGMA foreign_keys = ON;
 
 CREATE TABLE IF NOT EXISTS credentials (
-  id TEXT PRIMARY KEY,
+  slot INTEGER PRIMARY KEY CHECK (slot = 1),
+  id TEXT NOT NULL UNIQUE,
   public_key TEXT NOT NULL,
   counter INTEGER NOT NULL DEFAULT 0,
   transports TEXT NOT NULL DEFAULT '[]',
