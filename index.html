@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="fr">
+<html lang="fr" class="biometric-locked">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -23,9 +23,30 @@
   <meta name="color-scheme" content="dark">
   <link rel="preload" href="assets/chrome-wave.svg" as="image" type="image/svg+xml">
   <link rel="stylesheet" href="styles.css">
+  <script src="biometric-lock.js" defer></script>
   <script src="app.js" defer></script>
 </head>
 <body>
+
+  <div id="biometric-lock" class="biometric-lock" role="dialog" aria-modal="true" aria-labelledby="biometric-lock-title" aria-describedby="biometric-lock-message">
+    <section class="biometric-lock-card">
+      <img class="biometric-lock-brand" src="assets/brand-mark.webp" alt="SOPP">
+      <div class="biometric-lock-face" aria-hidden="true">
+        <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M16 7H11C8.8 7 7 8.8 7 11V16M32 7H37C39.2 7 41 8.8 41 11V16M41 32V37C41 39.2 39.2 41 37 41H32M16 41H11C8.8 41 7 39.2 7 37V32" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"/>
+          <circle cx="24" cy="20" r="6" stroke="currentColor" stroke-width="2.1"/>
+          <path d="M14.5 35C16.7 30.9 20 29 24 29C28 29 31.3 30.9 33.5 35" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <p class="biometric-lock-eyebrow">ACCÈS SÉCURISÉ</p>
+      <h2 id="biometric-lock-title">SOPP Agents</h2>
+      <p id="biometric-lock-message" class="biometric-lock-message">Déverrouille ta bibliothèque pour continuer.</p>
+      <button id="biometric-lock-action" class="biometric-lock-action" type="button">Activer Face ID</button>
+      <p id="biometric-lock-status" class="biometric-lock-status" role="status" aria-live="polite"></p>
+      <p class="biometric-lock-note">Face ID ou Touch ID est utilisé selon les capacités de ton appareil.</p>
+    </section>
+  </div>
+
   <div class="chrome-background" aria-hidden="true"></div>
   <header class="topbar">
     <a class="brand-link" href="./" aria-label="SOPP Agents, accueil"><img src="assets/brand-mark.webp" alt="Logo SOPP" class="brand-mark"></a>
