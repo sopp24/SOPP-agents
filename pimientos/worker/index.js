@@ -23,7 +23,30 @@ async function assistant(request,env,origin){
  const context="Contexte du voyage : "+JSON.stringify(body.trip||{})+"\\nBrouillon : "+JSON.stringify(body.draft||null)+"\\nLangue : français.";
  const r=await fetch("https://api.openai.com/v1/responses",{method:"POST",headers:{"Authorization":"Bearer "+env.OPENAI_API_KEY,"Content-Type":"application/json"},body:JSON.stringify({
   model:env.OPENAI_MODEL||"gpt-6-astra",reasoning:{effort:env.OPENAI_REASONING_EFFORT||"high"},tools:[{type:"web_search"}],instructions:PROMPT,
-  input:context+"\\n\\nConversation :\\n"+transcript+"\\n\\nRéponds maintenant en JSON strict.",max_output_tokens:3500,store:false
+  text:{format:{type:"json_schema",name:"pimientos_trip_advisor",strict:true,schema:{
+    type:"object",additionalProperties:false,
+    properties:{
+      message:{type:"string"},
+      status:{type:"string",enum:["questions","ready"]},
+      questions:{type:"array",items:{type:"string"}},
+      activity:{type:["object","null"],additionalProperties:false,properties:{
+        name:{type:"string"},category:{type:"string"},date:{type:"string"},startTime:{type:"string"},
+        duration:{type:["integer","null"]},address:{type:"string"},description:{type:"string"},
+        highlights:{type:"array",items:{type:"string"}},price:{type:["number","null"]},
+        bookingRequired:{type:"boolean"},bookingUrl:{type:"string"},
+        priority:{type:"string",enum:["must","medium","low"]}
+      },required:["name","category","date","startTime","duration","address","description","highlights","price","bookingRequired","bookingUrl","priority"]},
+      priority:{type:"object",additionalProperties:false,properties:{
+        level:{type:"string",enum:["must","medium","low"]},reason:{type:"string"}
+      },required:["level","reason"]},
+      evidence:{type:"array",items:{type:"object",additionalProperties:false,properties:{
+        title:{type:"string"},url:{type:"string"},note:{type:"string"}
+      },required:["title","url","note"]}},
+      warnings:{type:"array",items:{type:"string"}}
+    },
+    required:["message","status","questions","activity","priority","evidence","warnings"]
+  }}},
+  input:context+"\\n\\nConversation :\\n"+transcript+"\\n\\nProduis la réponse structurée selon le schéma fourni.",max_output_tokens:3500,store:false
  })});
  const result=await r.json();if(!r.ok)return json({error:result.error&&result.error.message||"Erreur du service IA."},r.status,origin);
  const text=(result.output||[]).filter(i=>i.type==="message").flatMap(i=>i.content||[]).filter(i=>i.type==="output_text").map(i=>i.text).join("\\n");
