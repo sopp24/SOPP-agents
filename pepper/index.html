@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#090a0c"><meta name="description" content="PEPPER — le compagnon intelligent pour organiser, visualiser et vivre ses voyages.">
+<meta property="og:title" content="PEPPER — Travel companion"><meta property="og:description" content="Ton voyage, ses étapes et ses bonnes décisions au même endroit.">
+<title>PEPPER — Travel companion</title><link rel="icon" href="./assets/chili.svg" type="image/svg+xml"><link rel="manifest" href="./manifest.webmanifest">
+<link rel="stylesheet" href="./styles.css"><link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" defer></script><script type="module" src="./app.js"></script>
+</head>
+<body>
+<div class="ambient ambient-a" aria-hidden="true"></div><div class="ambient ambient-b" aria-hidden="true"></div>
+<div class="app-shell">
+<header class="topbar">
+<a class="brand" href="./" aria-label="PEPPER, accueil"><span class="brand-mark" aria-hidden="true">🌶</span><span class="brand-copy"><strong>PEPPER</strong><small>TRAVEL COMPANION</small></span></a>
+<div class="topbar-center"><span class="live-dot"></span><span>Ton voyage, en temps réel</span></div>
+<div class="topbar-actions"><button class="ghost-button" type="button" data-action="settings"><span>⚙</span><span>Réglages</span></button><button class="primary-button" type="button" data-action="create-trip">＋ Nouveau voyage</button></div>
+</header>
+<main class="page">
+<section class="hero"><div><p class="eyebrow"><span class="eyebrow-line"></span> LE COMPAGNON QUI A DU PIQUANT</p><h1>Voyage léger.<br><em>Vis intensément.</em></h1><p class="hero-subtitle">Les lieux, les horaires, les réservations et les imprévus : tout ton voyage réuni dans un seul espace.</p></div><div class="hero-stamp" aria-hidden="true"><span>GO</span><strong>YOUR<br>OWN<br>WAY</strong><i>✳</i></div></section>
+<section id="empty-state" class="empty-state"><div class="empty-illustration"><span class="empty-sun"></span><span class="empty-pin">✦</span><span class="empty-route"></span><span class="empty-pepper">🌶</span></div><p class="eyebrow">TON PROCHAIN DÉPART COMMENCE ICI</p><h2>On part où ?</h2><p>Crée ton premier voyage pour afficher sa carte, construire ton programme et laisser PEPPER préparer les détails avec toi.</p><button class="primary-button large" type="button" data-action="create-trip">＋ Créer mon voyage</button><div class="empty-features"><span>◉ Carte interactive</span><span>✳ Assistant IA</span><span>↗ Réservations & trajets</span></div></section>
+<section id="trip-workspace" class="trip-workspace" hidden>
+<div class="trip-heading"><div><div class="eyebrow"><span class="eyebrow-line"></span> TON CARNET DE VOYAGE <span id="trip-status" class="status-pill">À venir</span></div><h2 id="trip-destination">Destination</h2><div class="trip-subline"><span id="trip-dates">Dates à définir</span><span>·</span><span id="trip-countdown">Préparation en cours</span><span>·</span><span id="trip-travellers">1 voyageur</span></div></div><div class="trip-heading-actions"><select id="trip-switcher" class="trip-switcher" aria-label="Changer de voyage"></select><button class="icon-button" type="button" data-action="edit-trip" title="Modifier le voyage">✎</button><button class="icon-button" type="button" data-action="sync" title="Synchroniser dans GitHub">↥</button></div></div>
+<div class="quick-links">
+<a id="link-google-maps" href="#" target="_blank" rel="noopener noreferrer"><span>↗</span> Google Maps</a><a id="link-apple-maps" href="#" target="_blank" rel="noopener noreferrer"><span>↗</span> Plans</a><a id="link-waze" href="#" target="_blank" rel="noopener noreferrer"><span>↗</span> Waze</a><a id="link-fuel" href="#" target="_blank" rel="noopener noreferrer"><span>↗</span> Stations-service</a><a href="https://www.sncf-connect.com/" target="_blank" rel="noopener noreferrer"><span>↗</span> Train</a><a href="https://www.skyscanner.fr/" target="_blank" rel="noopener noreferrer"><span>↗</span> Vols</a><a href="https://www.flixbus.fr/" target="_blank" rel="noopener noreferrer"><span>↗</span> Bus</a>
+</div>
+<div class="dashboard-grid"><div class="main-column">
+<section class="panel map-panel"><div class="panel-heading"><div><p class="eyebrow">EXPLORER</p><h3>La carte du voyage</h3></div><span class="panel-aside" id="map-location-label">Destination</span></div><div id="map" class="map" role="application" aria-label="Carte interactive du voyage"></div><div class="map-footer"><span><i class="legend-dot destination-dot"></i> Destination <i class="legend-dot activity-dot"></i> Activités</span><button class="text-button" type="button" data-action="fit-map">Recentrer la carte ↗</button></div></section>
+<section class="panel stay-panel">
+<div class="panel-heading"><div><p class="eyebrow">TON CAMP DE BASE</p><h3>Hébergement</h3></div><button class="small-button" type="button" data-action="edit-accommodation">＋ Ajouter / modifier</button></div>
+<div id="accommodation-content"><div class="empty-inline">Ajoute ton logement pour connaître les horaires, l’accès, les équipements et les consignes d’arrivée / départ.</div></div>
+</section>
+<section class="panel transport-panel">
+<div class="panel-heading"><div><p class="eyebrow">ALLER · RETOUR · CORRESPONDANCES</p><h3>Les trajets & billets</h3></div><button class="small-button" type="button" data-action="add-transport">＋ Ajouter un trajet</button></div>
+<div id="transport-content"><div class="empty-inline">Train, avion ou voiture : ajoute les informations de tes trajets pour calculer les marges d’arrivée et vérifier les correspondances avec le programme.</div></div>
+<div class="notice transport-note">Les horaires et marges sont vérifiés selon le transporteur et le billet. Les recommandations générales ne remplacent jamais l’heure limite indiquée sur ton titre de transport.</div>
+</section>
+<section class="panel itinerary-panel"><div class="panel-heading"><div><p class="eyebrow">LE PROGRAMME</p><h3>Les étapes à ne pas manquer</h3></div><button class="small-button" type="button" data-action="add-activity">＋ Ajouter une activité</button></div><div class="itinerary-summary" id="itinerary-summary"></div><div id="activities-list" class="activities-list"></div></section>
+<section class="panel budget-panel"><div class="panel-heading"><div><p class="eyebrow">GARDER LE CAP</p><h3>Budget & dépenses</h3></div><button class="small-button" type="button" data-action="add-expense">＋ Ajouter une dépense</button></div><div id="budget-content"></div></section>
+</div><aside class="side-column">
+<section class="panel weather-panel"><div class="panel-heading"><div><p class="eyebrow">EN CE MOMENT</p><h3>Météo à destination</h3></div><span class="weather-symbol">☀</span></div><div id="weather-content" class="weather-content"><span class="loading-spinner"></span><span>Recherche de la météo…</span></div><p class="data-note">Prévisions Open-Meteo · actualisées à l’ouverture</p></section>
+<section class="panel assistant-panel" id="assistant-panel">
+<div class="assistant-heading"><div class="assistant-avatar">P<span>✳</span></div><div><p class="eyebrow">TON COMPAGNON DE VOYAGE</p><h3>PIMI <span class="ai-tag">CHATGPT</span></h3><small id="ai-connection-state">Piloté depuis cette conversation</small></div></div>
+<div class="assistant-promise">Tu me donnes tes billets, ton logement ou une idée d’activité ici dans ChatGPT. Je vérifie les informations, pose les questions manquantes, contrôle la cohérence du planning et mets à jour le projet GitHub quand c’est approprié.</div>
+<div class="chat-message assistant-message">Pas de Cloudflare, pas de clé API dans l’application. PEPPER garde tes données privées sur cet appareil ; pour une nouvelle idée, prépare le contexte ci-dessous et colle-le dans notre conversation.</div>
+<form id="idea-form" class="ai-form"><label class="visually-hidden" for="idea-input">Préparer une demande à PIMI</label><textarea id="idea-input" rows="3" placeholder="Ex. : J’aimerais ajouter le musée, voici le billet et l’horaire…"></textarea><button class="send-button" type="submit" aria-label="Copier la demande pour ChatGPT">↗</button></form>
+<div class="draft-actions chat-actions"><button type="button" data-action="copy-trip-context">Copier le contexte du voyage</button><button type="button" data-action="copy-pimi-request">Préparer ma demande</button></div>
+<div class="assistant-foot"><span>Les nouvelles données restent locales tant que tu ne les partages pas.</span><span>Copier → coller ici</span></div>
+</section>
+<section class="panel checklist-panel"><div class="panel-heading"><div><p class="eyebrow">AVANT DE PARTIR</p><h3>Les essentiels</h3></div><span id="check-progress" class="progress-label">0 / 0</span></div><div id="checklist-content" class="checklist-content"></div><button class="text-button checklist-add" type="button" data-action="add-check">＋ Ajouter une tâche</button></section>
+<section class="panel tools-panel"><p class="eyebrow">À EMPORTER</p><h3>Ton voyage en poche</h3><div class="tool-actions"><button type="button" data-action="export-ics"><span>▦</span> Exporter le programme (.ics)</button><button type="button" data-action="export-json"><span>↓</span> Télécharger les données (.json)</button><button type="button" data-action="copy-trip-context"><span>↥</span> Copier le contexte du voyage</button></div></section>
+</aside></div>
+</section>
+<p class="privacy-footnote">Les détails du voyage sont enregistrés localement dans ce navigateur. Ne publie jamais de QR code, billet complet, pièce d’identité ou code d’accès dans un dépôt GitHub public.</p>
+<footer class="app-footer"><span>PEPPER <i>✳</i> Le goût de partir.</span><span>Une application SOPP · <a href="https://github.com/sopp24/SOPP-agents/tree/main/pepper" target="_blank" rel="noopener noreferrer">Code source ↗</a></span></footer>
+</main></div>
+<nav class="mobile-dock" aria-label="Navigation mobile"><button type="button" data-scroll="trip-workspace"><span>◉</span><small>Voyage</small></button><button type="button" data-scroll="map"><span>⌖</span><small>Carte</small></button><button type="button" data-action="add-activity"><span>＋</span><small>Étape</small></button><button type="button" data-scroll="assistant-panel"><span>✳</span><small>PIMI</small></button></nav>
+<div id="modal-root"></div><div id="toast-root" class="toast-root" role="status" aria-live="polite"></div>
+<a style="display:none!important" aria-hidden="true" tabindex="-1" class="sopp-home-float" href="https://sopp24.github.io/SOPP-agents/" aria-label="Retour à l’accueil de SOPP Agents" title="Retour à SOPP Agents"><img src="https://sopp24.github.io/SOPP-agents/assets/brand-mark.webp" alt="" aria-hidden="true"></a>
+<script src="https://sopp24.github.io/SOPP-agents/sopp-home-float.js?v=20261117" defer></script>
+</body></html>
