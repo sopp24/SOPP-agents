@@ -8,7 +8,7 @@ const today=()=>{const d=new Date();return d.getFullYear()+"-"+String(d.getMonth
 const dateLabel=v=>v?new Intl.DateTimeFormat("fr-FR",{day:"numeric",month:"short",year:"numeric"}).format(new Date(v+"T12:00:00")):"Date à définir";
 const money=(n,c)=>new Intl.NumberFormat("fr-FR",{style:"currency",currency:c||"EUR",maximumFractionDigits:0}).format(Number(n||0));
 let state=safeParse(localStorage.getItem(STORAGE_KEY),null)||{trips:[],activeTripId:null,settings:{aiEndpoint:""}};
-let map=null,markers=null,mapTripId=null,weatherData=null,weatherError="",weatherReq=0,aiMessages=[],aiDraft=null,aiAssessment=null,aiBusy=false;
+let map=null,markers=null,mapTripId=null,weatherData=null,weatherError="",weatherReq=0,aiMessages=[],aiDraft=null,aiAssessment=null,aiBusy=false;const geocodingTrips=new Set();
 const modalRoot=$("#modal-root");
 function activeTrip(){return state.trips.find(t=>t.id===state.activeTripId)||state.trips[0]||null}
 function persist(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(state))}catch(e){notify("Stockage local saturé : exporte tes données pour les sauvegarder.","error")}}
@@ -74,7 +74,24 @@ async function geocode(query){
  if(!response.ok)throw new Error("Géolocalisation indisponible");const list=await response.json();if(!list.length)return null;return{lat:Number(list[0].lat),lon:Number(list[0].lon),label:list[0].display_name};
 }
 async function fetchDestinationData(trip){
- const id=trip.id;try{const result=await geocode(trip.destination);if(activeTrip()&&activeTrip().id===id&&result){trip.geo=result;persist();renderMap(trip);fetchWeather(trip)}else if(!result){$("#map-location-label").textContent="Lieu introuvable";renderMap(trip)}}catch(e){$("#map-location-label").textContent="Carte indisponible";renderMap(trip)}
+ const id=trip.id,query=trip.destination;
+ if(geocodingTrips.has(id))return;
+ geocodingTrips.add(id);
+ try{
+  const result=await geocode(query);
+  if(activeTrip()&&activeTrip().id===id&&trip.destination===query&&result){
+   trip.geo=result;persist();renderMap(trip);fetchWeather(trip);
+  }else if(activeTrip()&&activeTrip().id===id&&trip.destination===query&&!result){
+   $("#map-location-label").textContent="Lieu introuvable";renderMap(trip);
+  }
+ }catch(e){
+  if(activeTrip()&&activeTrip().id===id&&trip.destination===query){
+   $("#map-location-label").textContent="Carte indisponible";renderMap(trip);
+  }
+ }finally{
+  geocodingTrips.delete(id);
+  if(activeTrip()&&activeTrip().id===id&&trip.destination!==query)fetchDestinationData(trip);
+ }
 }
 const wxLabel=c=>({0:"Ciel dégagé",1:"Plutôt dégagé",2:"Partiellement nuageux",3:"Couvert",45:"Brouillard",48:"Brouillard givrant",51:"Bruine légère",53:"Bruine",55:"Bruine dense",61:"Pluie faible",63:"Pluie",65:"Forte pluie",71:"Neige faible",73:"Neige",75:"Forte neige",80:"Averses",81:"Averses",82:"Fortes averses",95:"Orage",96:"Orage et grêle",99:"Orage violent"}[c]||"Conditions variables");
 const wxIcon=c=>c===0?"☀":c<=3?"⛅":c<=48?"☁":c<=67?"🌧":c<=77?"❄":c<=82?"🌦":"⛈";
@@ -119,7 +136,7 @@ function saveTripForm(form){
  const d=Object.fromEntries(new FormData(form).entries());if(d.startDate&&d.endDate&&d.endDate<d.startDate){notify("La date de retour doit suivre la date de départ.","error");return}
  let t=state.trips.find(x=>x.id===d.id);if(!t){t={id:uid(),activities:[],expenses:[],checklist:DEFAULT_CHECKLIST.map(label=>({id:uid(),label,done:false})),createdAt:new Date().toISOString()};state.trips.push(t)}
  Object.assign(t,{name:d.destination.trim(),destination:d.destination.trim(),startDate:d.startDate,endDate:d.endDate,people:Number(d.people||1),budget:Number(d.budget||0),currency:d.currency||"EUR",accommodation:d.accommodation||"",notes:d.notes||""});
- state.activeTripId=t.id;weatherData=null;weatherError="";aiMessages=[];aiDraft=null;persist();closeModal();render();fetchDestinationData(t);notify("Ton voyage est prêt à prendre forme.");
+ state.activeTripId=t.id;weatherData=null;weatherError="";aiMessages=[];aiDraft=null;persist();closeModal();render();notify("Ton voyage est prêt à prendre forme.");
 }
 async function addManualActivity(form){
  const d=Object.fromEntries(new FormData(form).entries()),t=activeTrip();if(!t)return;
@@ -161,7 +178,7 @@ async function sendAI(event){
  const endpoint=(state.settings&&state.settings.aiEndpoint||"").replace(/\/+$/,"");
  if(!endpoint){aiMessages.push({role:"user",content:message},{role:"assistant",content:"Je suis prête, mais mon moteur IA n’est pas encore connecté. Ouvre Réglages et ajoute l’URL du Cloudflare Worker. Le README explique comment l’installer avec la recherche web et la synchronisation GitHub."});input.value="";renderAI();return}
  aiMessages.push({role:"user",content:message});input.value="";aiBusy=true;renderAI();
- try{const r=await fetch(endpoint+"/api/assistant",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({messages:aiMessages.slice(-12),trip:{destination:t.destination,startDate:t.startDate,endDate:t.endDate,people:t.people,budget:t.budget,currency:t.currency,activities:t.activities},draft:aiDraft,locale:"fr-FR"})});const d=await r.json();if(!r.ok)throw new Error(d.error||"Agent IA indisponible");const parsed=parseAI(d.text||"");aiAssessment=parsed;if(parsed.activity&&parsed.activity.name)aiDraft=parsed.activity;aiMessages.push({role:"assistant",content:parsed.message||d.text||"Voici mon analyse."});}
+ try{const r=await fetch(endpoint+"/api/assistant",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({messages:aiMessages.slice(-12),trip:{destination:t.destination,startDate:t.startDate,endDate:t.endDate,people:t.people,budget:t.budget,currency:t.currency,activities:t.activities},draft:aiDraft,locale:"fr-FR"})});const d=await r.json();if(!r.ok)throw new Error(d.error||"Agent IA indisponible");const parsed=parseAI(d.text||"");aiAssessment=parsed;if(parsed.status==="ready"&&parsed.activity&&parsed.activity.name)aiDraft=parsed.activity;else aiDraft=null;aiMessages.push({role:"assistant",content:parsed.message||d.text||"Voici mon analyse."});}
  catch(e){aiMessages.push({role:"assistant",content:"Je n’ai pas pu joindre le moteur IA : "+e.message+" Vérifie l’URL du Worker et ses secrets."})}
  finally{aiBusy=false;renderAI()}
 }
