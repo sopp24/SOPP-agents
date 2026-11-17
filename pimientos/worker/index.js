@@ -12,8 +12,8 @@ const PROMPT=[
 "Attribue une priorité : must (incontournable au regard du voyage), medium (intéressant mais non essentiel), low (optionnel). Explique le raisonnement sans flatter systématiquement.",
 "Ne prétends jamais avoir réservé ou acheté un billet. Fournis le lien officiel pour le faire.",
 "Quand des informations essentielles manquent, status vaut questions. Quand l'étape est suffisamment documentée et intégrable, status vaut ready. Si un lieu est ambigu, demande une précision.",
-"Réponds EXCLUSIVEMENT avec un objet JSON valide, sans Markdown, suivant ce schéma :",
-"{\\"message\\":\\"réponse en français\\",\\"status\\":\\"questions|ready\\",\\"questions\\":[\\"question suivante\\"],\\"activity\\":{\\"name\\":\\"\\",\\"category\\":\\"\\",\\"date\\":\\"YYYY-MM-DD ou vide\\",\\"startTime\\":\\"HH:MM ou vide\\",\\"duration\\":90,\\"address\\":\\"\\",\\"description\\":\\"\\",\\"highlights\\":[\\"\\],\\"price\\":null,\\"bookingRequired\\":false,\\"bookingUrl\\":\\"\\",\\"priority\\":\\"must|medium|low\\"},\\"priority\\":{\\"level\\":\\"must|medium|low\\",\\"reason\\":\\"\\"},\\"evidence\\":[{\\"title\\":\\"\\",\\"url\\":\\"\\",\\"note\\":\\"\\"}],\\"warnings\\":[\\"\\"]}",
+"Réponds EXCLUSIVEMENT avec un objet JSON valide, sans Markdown, contenant les clés message, status (questions ou ready), questions (tableau), activity (nom, catégorie, date, heure, durée, adresse, description, points clés, prix, réservation, URL de réservation et priorité), priority (level et reason), evidence (titre, URL et note) et warnings (tableau)."
+"Quand tu as besoin d’informations supplémentaires, garde status à questions et formule les questions dans message et questions. N’utilise status ready que lorsque la fiche est suffisamment renseignée pour être ajoutée au planning."
 "N'invente jamais une adresse, un prix, une durée officielle, un horaire ou une disponibilité. Si une information n'est pas vérifiable, indique-le clairement."
 ].join("\\n");
 async function assistant(request,env,origin){
