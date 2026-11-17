@@ -1,0 +1,15 @@
+{
+  "id": "/SOPP-agents/pimientos/",
+  "name": "PIMIENTOS — Travel Companion",
+  "short_name": "PIMIENTOS",
+  "description": "Compagnon intelligent de préparation et de suivi de voyage.",
+  "lang": "fr-FR",
+  "start_url": "/SOPP-agents/pimientos/?from=sopp-agents",
+  "scope": "/SOPP-agents/pimientos/",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui", "browser"],
+  "orientation": "any",
+  "background_color": "#090a0c",
+  "theme_color": "#090a0c",
+  "icons": [{"src":"./assets/chili.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}]
+}
