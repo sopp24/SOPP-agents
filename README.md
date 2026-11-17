@@ -9,7 +9,7 @@ Bibliothèque personnelle des applications web développées par Adam Soppelsa.
 - **DRESSOPP** — assistant personnel de style : découverte de vêtements, apprentissage des préférences, garde-robe et tenues inspirées du tableau Pinterest `mode`.
 - **G.E.N.I.S** — assistant personnel web installable, conversation vocale et textuelle, mémoire locale et outils IA.
 - **ITSoppSTUDCORP** — cartes mentales interactives EcoSTUD et MediSTUD autour de la mobilité étudiante.
-- **PEPPER** — compagnon de voyage : hébergement, billets et trajets train / avion / voiture, marges d’arrivée, itinéraire, activités à cocher, météo et budget. PIMI est piloté depuis ChatGPT ; les données restent locales.
+- **PEPPER** — compagnon de voyage autonome : hébergement, billets et trajets train / avion / voiture, marges d’arrivée, itinéraire, activités à cocher, météo et budget. [Application](https://sopp24.github.io/PEPPER/) · [Dépôt dédié](https://github.com/sopp24/PEPPER). PIMI est piloté depuis ChatGPT ; les données restent locales.
 - **SOPP-Language** — interprète multilingue avec traduction orale, conversation, texte et documents.
 
 La bibliothèque et la recherche affichent ces sept applications dans le même ordre alphabétique.
