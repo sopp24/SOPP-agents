@@ -176,7 +176,7 @@
     return "Impossible de vérifier ton identité. Vérifie la configuration biométrique de ton appareil et réessaie.";
   }
 
-  action.addEventListener("click", async () => {
+  async function runAuthentication() {
     if (action.disabled) return;
 
     action.disabled = true;
@@ -198,7 +198,9 @@
       action.disabled = false;
       action.removeAttribute("aria-busy");
     }
-  });
+  }
+
+  action.addEventListener("click", runAuthentication);
 
   document.addEventListener("visibilitychange", () => {
     if (document.visibilityState === "hidden") setLocked();
@@ -210,4 +212,11 @@
   });
 
   setLocked();
+
+  // Lance automatiquement Face ID dès l'ouverture si une clé est déjà enregistrée.
+  if (credentialRecord) {
+    window.addEventListener("load", () => {
+      runAuthentication();
+    }, { once: true });
+  }
 })();
