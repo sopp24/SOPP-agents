@@ -162,103 +162,60 @@
     }).then(completeAuthentication);
   }
 
-  async function readClientCapabilities() {
-    if (!window.PublicKeyCredential || typeof window.PublicKeyCredential.getClientCapabilities !== "function") {
-      return {};
-    }
-
-    try {
-      return await window.PublicKeyCredential.getClientCapabilities();
-    } catch (error) {
-      return {};
-    }
-  }
-
   async function startAutomaticAuthentication() {
     if (!credentialRecord) return;
 
-    const capabilities = await readClientCapabilities();
-    const uiMode = capabilities.conditionalActiveGet
-      ? "active"
-      : (capabilities.conditionalPassiveGet ? "passive" : null);
-
-    if (!uiMode) {
-      if (IS_MAC) {
-        status.textContent = "Ton navigateur ne prend pas encore en charge l’invite Touch ID automatique à l’ouverture. Utilise le bouton « Déverrouiller avec Touch ID » pour lancer la vérification.";
-        return;
-      }
-
-      // Conserve le comportement Face ID déjà en place sur les appareils
-      // où le nouveau mode conditionnel sans formulaire n'est pas disponible.
-      try {
-        const assertion = await navigator.credentials.get({
-          publicKey: {
-            challenge: randomChallenge(),
-            rpId: window.location.hostname,
-            allowCredentials: [],
-            userVerification: "required",
-            timeout: 60000
-          }
-        });
-        completeAuthentication(assertion);
-      } catch (error) {
-        if (error && error.name !== "AbortError") status.textContent = errorMessage(error);
-      }
-      return;
-    }
-
-    const controller = new AbortController();
-    automaticRequestController = controller;
-    status.textContent = `Recherche de la clé d’accès ${BIOMETRIC_METHOD}…`;
+    status.textContent = `Demande de déverrouillage ${BIOMETRIC_METHOD}…`;
 
     try {
-      const assertion = await navigator.credentials.get({
-        mediation: "conditional",
-        uiMode,
-        signal: controller.signal,
-        publicKey: {
-          challenge: randomChallenge(),
-          rpId: window.location.hostname,
-          allowCredentials: [],
-          userVerification: "required",
-          timeout: 60000
-        }
-      });
-      completeAuthentication(assertion);
+      // Déclenche directement l'authentification de la clé locale déjà créée.
+      // Sur Mac, Chrome affiche sa boîte de dialogue de passkey et demande
+      // Touch ID (ou le moyen de secours configuré par macOS).
+      await authenticate();
     } catch (error) {
-      if (error && error.name !== "AbortError") {
-        status.textContent = error && error.name === "NotAllowedError"
-          ? `La demande automatique n’a pas abouti. Clique sur « Déverrouiller avec ${BIOMETRIC_METHOD} » pour réessayer.`
-          : errorMessage(error);
+      if (error && error.name === "NotAllowedError") {
+        status.textContent = `La demande ${BIOMETRIC_METHOD} n’a pas été validée. Clique sur « Déverrouiller avec ${BIOMETRIC_METHOD} » pour réessayer.`;
+      } else if (error && error.name !== "AbortError") {
+        status.textContent = errorMessage(error);
       }
-    } finally {
-      if (automaticRequestController === controller) automaticRequestController = null;
     }
   }
 
   function errorMessage(error) {
     if (error && error.message === "NO_PLATFORM_AUTHENTICATOR") {
-      return `L’authentification ${BIOMETRIC_METHOD} n’est pas disponible dans ce navigateur. Sur Mac, vérifie que Touch ID est configuré dans Réglages Système, puis essaie avec Safari ou Chrome en navigation normale.`;
+      return `L’authentification ${BIOMETRIC_METHOD} n’est pas disponible dans ce navigateur. Vérifie que Touch ID est configuré dans Réglages Système et que Chrome est à jour.`;
     }
     if (error && error.message === "STORAGE_UNAVAILABLE") {
       return "Le navigateur ne permet pas d’enregistrer la clé de sécurité. Autorise le stockage du site puis réessaie.";
     }
     if (error && error.message === "CREDENTIAL_MISMATCH") {
-      return "La clé d’accès renvoyée ne correspond pas à celle enregistrée pour SOPP Agents. Réactive Touch ID sur cet appareil.";
+      return "La clé d’accès renvoyée ne correspond pas à celle enregistrée pour SOPP Agents. Il faut réactiver la clé sur cet appareil.";
     }
     if (error && error.message === "USER_VERIFICATION_MISSING") {
       return `La vérification ${BIOMETRIC_METHOD} n’a pas été confirmée par l’appareil. Réessaie et valide la demande dans la fenêtre système.`;
     }
     if (error && error.name === "NotAllowedError") {
-      return `Vérification ${BIOMETRIC_METHOD} annulée ou expirée. Appuie de nouveau sur le bouton pour réessayer.`;
+      return `La demande ${BIOMETRIC_METHOD} a été refusée, annulée ou a expiré. Relance-la depuis le bouton.`;
     }
-    if (error && (error.name === "SecurityError" || error.name === "NotSupportedError")) {
-      return `La biométrie n’est pas disponible à cette adresse ou dans ce navigateur. Ouvre SOPP Agents depuis son adresse HTTPS officielle et vérifie que ${BIOMETRIC_METHOD} est configuré sur ton appareil.`;
+    if (error && error.name === "ConstraintError") {
+      return `Chrome ou macOS ne propose pas de passkey locale répondant aux exigences Touch ID. Mets Chrome et macOS à jour et vérifie que Touch ID est configuré.`;
+    }
+    if (error && error.name === "SecurityError") {
+      return `Le navigateur a refusé le domaine WebAuthn (${window.location.hostname}). Ouvre SOPP Agents depuis https://sopp24.github.io/SOPP-agents/.`;
+    }
+    if (error && error.name === "NotSupportedError") {
+      return `Ce navigateur ou cet appareil ne prend pas en charge la passkey locale demandée. Mets Chrome à jour et vérifie Touch ID dans Réglages Système.`;
     }
     if (error && error.name === "InvalidStateError") {
       return "Cette clé est déjà enregistrée ou indisponible. Recharge la page et réessaie.";
     }
-    return "Impossible de vérifier ton identité. Vérifie la configuration biométrique de ton appareil et réessaie.";
+    if (error && error.name === "TypeError") {
+      return `La demande WebAuthn est incompatible avec ce navigateur : ${error.message || "options refusées"}.`;
+    }
+
+    const name = error && error.name ? error.name : "Erreur inconnue";
+    const detail = error && error.message ? error.message : "aucun détail fourni par le navigateur";
+    return `Échec de l’authentification (${name}) : ${detail}. Vérifie que Chrome est à jour et que Touch ID est configuré.`;
   }
 
   async function runAuthentication() {
@@ -277,11 +234,12 @@
         await activateBiometrics();
       }
     } catch (error) {
-      if (credentialRecord && error && error.name === "NotAllowedError" && !enrollmentNeeded) {
-        // Une authentification lancée par clic peut être réessayée ou réinscrite.
+      if (credentialRecord && error && error.message === "CREDENTIAL_MISMATCH") {
         enrollmentNeeded = true;
-        status.textContent = `La clé d’accès n’a pas été validée. Clique de nouveau pour enregistrer ${BIOMETRIC_METHOD} sur cet appareil.`;
+        status.textContent = `La clé locale ne correspond plus. Clique de nouveau pour créer une nouvelle clé ${BIOMETRIC_METHOD}.`;
       } else {
+        // Une annulation de Touch ID ne supprime pas la clé : le bouton doit
+        // rester un bouton de déverrouillage, pas demander une nouvelle inscription.
         status.textContent = errorMessage(error);
       }
       setActionLabel();
