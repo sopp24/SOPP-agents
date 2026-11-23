@@ -93,18 +93,20 @@
           name: "sopp-agents",
           displayName: "SOPP Agents"
         },
-        // ES256 est le format standard pris en charge par Touch ID.
+        // ES256 est largement pris en charge par les passkeys macOS/Chrome.
         pubKeyCredParams: [
-          { type: "public-key", alg: -7 }
+          { type: "public-key", alg: -7 },
+          { type: "public-key", alg: -257 }
         ],
         authenticatorSelection: {
-          authenticatorAttachment: "platform",
-          // "preferred" garde la préférence pour une passkey découvrable,
-          // sans faire échouer les authentificateurs qui ne la proposent pas.
-          residentKey: "preferred",
+          // La passkey doit être découvrable pour permettre l'invite à l'ouverture.
+          // On laisse Chrome/macOS choisir son fournisseur local (Touch ID,
+          // Trousseau iCloud ou Google Password Manager) au lieu de le contraindre.
+          residentKey: "required",
+          requireResidentKey: true,
           userVerification: "required"
         },
-        timeout: 60000,
+        timeout: 120000,
         attestation: "none"
       }
     });
@@ -201,11 +203,12 @@
         publicKey: {
           challenge: randomChallenge(),
           rpId: window.location.hostname,
-          // La demande sans champ de connexion nécessite une passkey découvrable.
+          // Cette invite sans formulaire exige une passkey découvrable.
+          // uiMode fait partie des options WebAuthn publiques, pas de l'objet externe.
           userVerification: "required",
-          timeout: 60000
-        },
-        uiMode
+          timeout: 60000,
+          uiMode
+        }
       });
       completeAuthentication(assertion);
     } catch (error) {
@@ -231,7 +234,10 @@
       return `La vérification ${BIOMETRIC_METHOD} n’a pas été confirmée par l’appareil. Réessaie et valide la demande dans la fenêtre système.`;
     }
     if (error && error.name === "NotAllowedError") {
-      return `La demande ${BIOMETRIC_METHOD} a été refusée, annulée ou a expiré. Relance-la depuis le bouton.`;
+      return `La demande ${BIOMETRIC_METHOD} a été refusée, annulée ou a expiré. Relance-la depuis le bouton et valide la fenêtre système de Chrome/macOS.`;
+    }
+    if (error && error.name === "AbortError") {
+      return `Chrome/macOS a interrompu la création de la clé (${error.message || "demande annulée"}). Mets Chrome à jour, puis vérifie que Touch ID est configuré dans Réglages Système > Touch ID et qu'un gestionnaire de passkeys est activé dans Chrome.`;
     }
     if (error && error.name === "ConstraintError") {
       return `L’authentificateur Touch ID ne répond pas aux contraintes de création de cette clé. Vérifie qu’une empreinte est configurée dans Réglages Système > Touch ID, puis réessaie.`;
@@ -277,8 +283,7 @@
         enrollmentNeeded = true;
         status.textContent = `La clé locale ne correspond plus. Clique de nouveau pour créer une nouvelle clé ${BIOMETRIC_METHOD}.`;
       } else {
-        // Une annulation de Touch ID ne supprime pas la clé : le bouton doit
-        // rester un bouton de déverrouillage, pas demander une nouvelle inscription.
+        // Une annulation du dialogue système ne signifie pas que la clé est invalide.
         status.textContent = errorMessage(error);
       }
       setActionLabel();
