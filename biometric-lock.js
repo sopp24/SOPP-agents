@@ -61,8 +61,8 @@
       binary += String.fromCharCode(bytes[index]);
     }
     return window.btoa(binary)
-      .replace(/\\+/g, "-")
-      .replace(/\\//g, "_")
+      .replaceAll("+", "-")
+      .replaceAll("/", "_")
       .replace(/=+$/g, "");
   }
 
