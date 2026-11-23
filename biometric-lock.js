@@ -86,6 +86,7 @@
         // Laisse le navigateur utiliser l'identifiant RP exact de l'origine
         // GitHub Pages (sopp24.github.io), sans forcer un domaine partagé.
         rp: {
+          id: window.location.hostname,
           name: "SOPP Agents"
         },
         user: {
@@ -99,9 +100,9 @@
           { type: "public-key", alg: -257 }
         ],
         authenticatorSelection: {
-          // La passkey doit être découvrable pour permettre l'invite à l'ouverture.
-          // On laisse Chrome/macOS choisir son fournisseur local (Touch ID,
-          // Trousseau iCloud ou Google Password Manager) au lieu de le contraindre.
+          // Ce verrou doit utiliser le capteur intégré au Mac, pas une clé USB
+          // ni un téléphone. Sur ce MacBook Pro, Chrome doit solliciter Touch ID.
+          authenticatorAttachment: "platform",
           residentKey: "required",
           requireResidentKey: true,
           userVerification: "required"
@@ -237,7 +238,7 @@
       return `La demande ${BIOMETRIC_METHOD} a été refusée, annulée ou a expiré. Relance-la depuis le bouton et valide la fenêtre système de Chrome/macOS.`;
     }
     if (error && error.name === "AbortError") {
-      return `Chrome/macOS a interrompu la création de la clé (${error.message || "demande annulée"}). Mets Chrome à jour, puis vérifie que Touch ID est configuré dans Réglages Système > Touch ID et qu'un gestionnaire de passkeys est activé dans Chrome.`;
+      return `Chrome a annulé la demande avant l’ouverture de Touch ID. Cela peut venir de l’authentificateur intégré indisponible ou d’une demande interrompue. Relance la création ; si cela se reproduit, teste d’abord une passkey sur webauthn.io pour distinguer un blocage Chrome/macOS d’un problème propre à SOPP Agents.`;
     }
     if (error && error.name === "ConstraintError") {
       return `L’authentificateur Touch ID ne répond pas aux contraintes de création de cette clé. Vérifie qu’une empreinte est configurée dans Réglages Système > Touch ID, puis réessaie.`;
@@ -269,7 +270,9 @@
     action.disabled = true;
     action.setAttribute("aria-busy", "true");
     action.textContent = "Vérification en cours…";
-    status.textContent = "Confirme ton identité sur ton appareil.";
+    status.textContent = credentialRecord && !enrollmentNeeded
+      ? `Confirme ton identité avec ${BIOMETRIC_METHOD}.`
+      : `Création de ta clé d’accès ${BIOMETRIC_METHOD}…`;
 
     try {
       credentialRecord = readCredential();
