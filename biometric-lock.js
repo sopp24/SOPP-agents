@@ -83,8 +83,9 @@
     const credential = await navigator.credentials.create({
       publicKey: {
         challenge: randomChallenge(),
+        // Laisse le navigateur utiliser l'identifiant RP exact de l'origine
+        // GitHub Pages (sopp24.github.io), sans forcer un domaine partagé.
         rp: {
-          id: window.location.hostname,
           name: "SOPP Agents"
         },
         user: {
@@ -92,13 +93,15 @@
           name: "sopp-agents",
           displayName: "SOPP Agents"
         },
+        // ES256 est le format standard pris en charge par Touch ID.
         pubKeyCredParams: [
-          { type: "public-key", alg: -7 },
-          { type: "public-key", alg: -257 }
+          { type: "public-key", alg: -7 }
         ],
         authenticatorSelection: {
           authenticatorAttachment: "platform",
-          residentKey: "required",
+          // "preferred" garde la préférence pour une passkey découvrable,
+          // sans faire échouer les authentificateurs qui ne la proposent pas.
+          residentKey: "preferred",
           userVerification: "required"
         },
         timeout: 60000,
@@ -165,19 +168,52 @@
   async function startAutomaticAuthentication() {
     if (!credentialRecord) return;
 
-    status.textContent = `Demande de déverrouillage ${BIOMETRIC_METHOD}…`;
+    let capabilities = {};
+    if (window.PublicKeyCredential &&
+        typeof window.PublicKeyCredential.getClientCapabilities === "function") {
+      try {
+        capabilities = await window.PublicKeyCredential.getClientCapabilities();
+      } catch (error) {
+        capabilities = {};
+      }
+    }
+
+    // L'invite automatique sans champ de connexion est une capacité récente
+    // et expérimentale de certains navigateurs. Elle ne doit être appelée que
+    // si le navigateur annonce explicitement la prise en charge.
+    const uiMode = capabilities.conditionalActiveGet
+      ? "active"
+      : (capabilities.conditionalPassiveGet ? "passive" : null);
+
+    if (!uiMode) {
+      status.textContent = `La clé ${BIOMETRIC_METHOD} est enregistrée. Cette version du navigateur ne propose pas encore l’invite biométrique automatique à l’ouverture : utilise le bouton pour déclencher Touch ID.`;
+      return;
+    }
+
+    status.textContent = `Recherche de la clé ${BIOMETRIC_METHOD}…`;
+    const controller = new AbortController();
+    automaticRequestController = controller;
 
     try {
-      // Déclenche directement l'authentification de la clé locale déjà créée.
-      // Sur Mac, Chrome affiche sa boîte de dialogue de passkey et demande
-      // Touch ID (ou le moyen de secours configuré par macOS).
-      await authenticate();
+      const assertion = await navigator.credentials.get({
+        mediation: "conditional",
+        signal: controller.signal,
+        publicKey: {
+          challenge: randomChallenge(),
+          rpId: window.location.hostname,
+          // La demande sans champ de connexion nécessite une passkey découvrable.
+          userVerification: "required",
+          timeout: 60000
+        },
+        uiMode
+      });
+      completeAuthentication(assertion);
     } catch (error) {
-      if (error && error.name === "NotAllowedError") {
-        status.textContent = `La demande ${BIOMETRIC_METHOD} n’a pas été validée. Clique sur « Déverrouiller avec ${BIOMETRIC_METHOD} » pour réessayer.`;
-      } else if (error && error.name !== "AbortError") {
+      if (error && error.name !== "AbortError") {
         status.textContent = errorMessage(error);
       }
+    } finally {
+      if (automaticRequestController === controller) automaticRequestController = null;
     }
   }
 
@@ -198,7 +234,10 @@
       return `La demande ${BIOMETRIC_METHOD} a été refusée, annulée ou a expiré. Relance-la depuis le bouton.`;
     }
     if (error && error.name === "ConstraintError") {
-      return `Chrome ou macOS ne propose pas de passkey locale répondant aux exigences Touch ID. Mets Chrome et macOS à jour et vérifie que Touch ID est configuré.`;
+      return `L’authentificateur Touch ID ne répond pas aux contraintes de création de cette clé. Vérifie qu’une empreinte est configurée dans Réglages Système > Touch ID, puis réessaie.`;
+    }
+    if (error && (error.name === "UnknownError" || error.name === "NotReadableError")) {
+      return `macOS ou Chrome n’a pas pu accéder à l’authentificateur Touch ID (${error.name}). Mets Chrome à jour, vérifie Touch ID dans Réglages Système et autorise Chrome à utiliser les clés d’accès.`;
     }
     if (error && error.name === "SecurityError") {
       return `Le navigateur a refusé le domaine WebAuthn (${window.location.hostname}). Ouvre SOPP Agents depuis https://sopp24.github.io/SOPP-agents/.`;
@@ -215,7 +254,7 @@
 
     const name = error && error.name ? error.name : "Erreur inconnue";
     const detail = error && error.message ? error.message : "aucun détail fourni par le navigateur";
-    return `Échec de l’authentification (${name}) : ${detail}. Vérifie que Chrome est à jour et que Touch ID est configuré.`;
+    return `Échec de la création ou de la vérification de la clé (${name}) : ${detail}. Mets Chrome à jour et vérifie que Touch ID fonctionne sur le Mac.`;
   }
 
   async function runAuthentication() {
