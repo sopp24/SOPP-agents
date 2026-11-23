@@ -17,6 +17,7 @@
   })();
 
   let credentialRecord = readCredential();
+  let enrollmentNeeded = false;
 
   function readCredential() {
     try {
@@ -29,7 +30,7 @@
   }
 
   function setActionLabel() {
-    action.textContent = credentialRecord ? `Déverrouiller avec ${BIOMETRIC_METHOD}` : `Activer ${BIOMETRIC_METHOD}`;
+    action.textContent = credentialRecord && !enrollmentNeeded ? `Déverrouiller avec ${BIOMETRIC_METHOD}` : `Activer ${BIOMETRIC_METHOD}`;
   }
 
   function setLocked() {
@@ -125,6 +126,7 @@
     }
 
     credentialRecord = newRecord;
+    enrollmentNeeded = false;
     unlock(`La protection ${BIOMETRIC_METHOD} est activée sur cet appareil.`);
   }
 
@@ -186,13 +188,20 @@
 
     try {
       credentialRecord = readCredential();
-      if (credentialRecord) {
+      if (credentialRecord && !enrollmentNeeded) {
         await authenticate();
       } else {
         await activateBiometrics();
       }
     } catch (error) {
-      status.textContent = errorMessage(error);
+      if (credentialRecord && error && error.name === "NotAllowedError" && !enrollmentNeeded) {
+        // Une ancienne clé peut être absente de ce navigateur ou avoir été annulée.
+        // Propose une nouvelle inscription au prochain clic au lieu de bloquer l’accès.
+        enrollmentNeeded = true;
+        status.textContent = `Aucune passkey n’a été sélectionnée ou la demande a été annulée. Clique de nouveau pour enregistrer ${BIOMETRIC_METHOD} sur cet appareil.`;
+      } else {
+        status.textContent = errorMessage(error);
+      }
       setActionLabel();
     } finally {
       action.disabled = false;
