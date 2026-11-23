@@ -102,17 +102,15 @@
           displayName: "SOPP Agents"
         },
         pubKeyCredParams: [
-          { type: "public-key", alg: -7 },
-          { type: "public-key", alg: -257 }
+          { type: "public-key", alg: -7 }
         ],
         authenticatorSelection: {
-          // Demande le capteur intégré au Mac : Touch ID.
+          // Même méthode WebAuthn que Face ID : authentificateur intégré.
+          // Sur le Mac, Chrome/macOS utilise Touch ID et iCloud Keychain.
           authenticatorAttachment: "platform",
           residentKey: "required",
           userVerification: "required"
         },
-        // Indique au navigateur de privilégier l'appareil utilisé (Touch ID).
-        hints: ["client-device"],
         attestation: "none"
       }
     });
@@ -193,7 +191,7 @@
       return `La demande ${BIOMETRIC_METHOD} a été annulée ou a expiré. Réessaie.`;
     }
     if (error && error.name === "AbortError") {
-      return `Chrome/macOS a annulé la demande WebAuthn (${error.name}). Vérifie que la fenêtre de validation n’a pas été refusée ou interrompue, puis relance. Si aucune fenêtre n’apparaît, le navigateur n’a pas réussi à joindre le trousseau Apple.`;
+      return `Chrome/macOS a interrompu la création de la passkey avant la confirmation Touch ID. La demande a été annulée ou bloquée par le gestionnaire de clés. Relance une fois ; si cela se répète, le test WebAuthn indépendant permettra de confirmer si l'annulation vient de Chrome/macOS ou du site.`;
     }
     if (error && error.name === "ConstraintError") {
       return `L’appareil ne peut pas créer une clé biométrique répondant aux exigences demandées. Vérifie la configuration de ${BIOMETRIC_METHOD}.`;
