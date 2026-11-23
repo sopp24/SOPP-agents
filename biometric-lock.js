@@ -8,6 +8,14 @@
 
   if (!root || !action || !status) return;
 
+  const BIOMETRIC_METHOD = (() => {
+    const platform = navigator.userAgentData?.platform || navigator.platform || "";
+    const isIPad = /Mac/i.test(platform) && navigator.maxTouchPoints > 1;
+    if (/Mac/i.test(platform) && !isIPad) return "Touch ID";
+    if (/Win/i.test(platform)) return "Windows Hello";
+    return "Face ID";
+  })();
+
   let credentialRecord = readCredential();
 
   function readCredential() {
@@ -21,7 +29,7 @@
   }
 
   function setActionLabel() {
-    action.textContent = credentialRecord ? "Déverrouiller avec Face ID" : "Activer Face ID";
+    action.textContent = credentialRecord ? `Déverrouiller avec ${BIOMETRIC_METHOD}` : `Activer ${BIOMETRIC_METHOD}`;
   }
 
   function setLocked() {
@@ -64,19 +72,10 @@
   }
 
   async function platformAuthenticatorAvailable() {
-    if (!window.isSecureContext || !navigator.credentials || !window.PublicKeyCredential) {
-      return false;
-    }
-
-    if (typeof window.PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable === "function") {
-      try {
-        return await window.PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
-      } catch (error) {
-        return false;
-      }
-    }
-
-    return true;
+    // Laisse le navigateur essayer son authentificateur intégré (Touch ID sur Mac,
+    // Face ID sur les appareils compatibles, Windows Hello sur Windows).
+    // Le test de disponibilité préalable peut être imprécis selon le navigateur.
+    return Boolean(window.isSecureContext && navigator.credentials && window.PublicKeyCredential);
   }
 
   async function activateBiometrics() {
@@ -126,7 +125,7 @@
     }
 
     credentialRecord = newRecord;
-    unlock("La protection Face ID est activée sur cet appareil.");
+    unlock(`La protection ${BIOMETRIC_METHOD} est activée sur cet appareil.`);
   }
 
   async function authenticate() {
@@ -156,19 +155,19 @@
 
   function errorMessage(error) {
     if (error && error.message === "NO_PLATFORM_AUTHENTICATOR") {
-      return "Aucun moyen biométrique compatible n’est disponible. Utilise Safari sur un appareil équipé de Face ID ou Touch ID.";
+      return `L’authentification ${BIOMETRIC_METHOD} n’est pas disponible dans ce navigateur. Sur Mac, vérifie que Touch ID est configuré dans Réglages Système, puis essaie avec Safari ou Chrome en navigation normale.`;
     }
     if (error && error.message === "STORAGE_UNAVAILABLE") {
       return "Le navigateur ne permet pas d’enregistrer la clé de sécurité. Autorise le stockage du site puis réessaie.";
     }
     if (error && error.message === "CREDENTIAL_MISMATCH") {
-      return "La clé biométrique ne correspond pas à cet appareil. Vérifie que tu utilises le navigateur où Face ID a été activé.";
+      return "La clé biométrique ne correspond pas à cet appareil. Vérifie que tu utilises le navigateur où la protection biométrique a été activée.";
     }
     if (error && error.name === "NotAllowedError") {
-      return "Vérification annulée ou expirée. Appuie de nouveau sur le bouton pour réessayer.";
+      return `Vérification ${BIOMETRIC_METHOD} annulée ou expirée. Appuie de nouveau sur le bouton pour réessayer.`;
     }
     if (error && (error.name === "SecurityError" || error.name === "NotSupportedError")) {
-      return "La biométrie n’est pas disponible à cette adresse ou dans ce navigateur. Ouvre SOPP Agents depuis son adresse HTTPS officielle.";
+      return `La biométrie n’est pas disponible à cette adresse ou dans ce navigateur. Ouvre SOPP Agents depuis son adresse HTTPS officielle et vérifie que ${BIOMETRIC_METHOD} est configuré sur ton appareil.`;
     }
     if (error && error.name === "InvalidStateError") {
       return "Cette clé est déjà enregistrée ou indisponible. Recharge la page et réessaie.";
@@ -213,7 +212,7 @@
 
   setLocked();
 
-  // Lance automatiquement Face ID dès l'ouverture si une clé est déjà enregistrée.
+  // Lance automatiquement l’authentification biométrique dès l’ouverture si une clé est déjà enregistrée.
   if (credentialRecord) {
     window.addEventListener("load", () => {
       runAuthentication();
