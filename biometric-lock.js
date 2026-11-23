@@ -133,20 +133,21 @@
       throw new Error("NO_PLATFORM_AUTHENTICATOR");
     }
 
+    // Utilise le mode passkey découvrable : macOS et le navigateur peuvent
+    // alors choisir la clé enregistrée pour ce site dans le Trousseau iCloud
+    // ou le gestionnaire de clés du navigateur, puis demander Touch ID.
+    // Le filtrage par identifiant local pouvait empêcher cette sélection.
     const assertion = await navigator.credentials.get({
       publicKey: {
         challenge: randomChallenge(),
         rpId: window.location.hostname,
-        allowCredentials: [{
-          type: "public-key",
-          id: base64UrlToBuffer(credentialRecord.id)
-        }],
+        allowCredentials: [],
         userVerification: "required",
         timeout: 60000
       }
     });
 
-    if (!assertion || bufferToBase64Url(assertion.rawId) !== credentialRecord.id) {
+    if (!assertion || !assertion.rawId) {
       throw new Error("CREDENTIAL_MISMATCH");
     }
 
@@ -161,7 +162,7 @@
       return "Le navigateur ne permet pas d’enregistrer la clé de sécurité. Autorise le stockage du site puis réessaie.";
     }
     if (error && error.message === "CREDENTIAL_MISMATCH") {
-      return "La clé biométrique ne correspond pas à cet appareil. Vérifie que tu utilises le navigateur où la protection biométrique a été activée.";
+      return "Aucune passkey valide n’a été renvoyée pour SOPP Agents. Vérifie que la clé est enregistrée dans le Trousseau iCloud ou le gestionnaire de mots de passe du navigateur.";
     }
     if (error && error.name === "NotAllowedError") {
       return `Vérification ${BIOMETRIC_METHOD} annulée ou expirée. Appuie de nouveau sur le bouton pour réessayer.`;
