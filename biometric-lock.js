@@ -91,8 +91,9 @@
     const creationRequest = navigator.credentials.create({
       publicKey: {
         challenge: randomChallenge(),
+        // Laisse WebAuthn déduire le RP ID de l'origine HTTPS actuelle.
+        // Cela évite une divergence entre l'origine GitHub Pages et le domaine demandé.
         rp: {
-          id: window.location.hostname,
           name: "SOPP Agents"
         },
         user: {
@@ -105,12 +106,13 @@
           { type: "public-key", alg: -257 }
         ],
         authenticatorSelection: {
+          // Demande le capteur intégré au Mac : Touch ID.
           authenticatorAttachment: "platform",
           residentKey: "required",
-          requireResidentKey: true,
           userVerification: "required"
         },
-        timeout: 120000,
+        // Indique au navigateur de privilégier l'appareil utilisé (Touch ID).
+        hints: ["client-device"],
         attestation: "none"
       }
     });
@@ -152,10 +154,10 @@
         rpId: window.location.hostname,
         allowCredentials: [{
           type: "public-key",
-          id: base64UrlToBuffer(credentialRecord.id)
+          id: base64UrlToBuffer(credentialRecord.id),
+          transports: ["internal"]
         }],
-        userVerification: "required",
-        timeout: 120000
+        userVerification: "required"
       }
     });
 
@@ -191,7 +193,7 @@
       return `La demande ${BIOMETRIC_METHOD} a été annulée ou a expiré. Réessaie.`;
     }
     if (error && error.name === "AbortError") {
-      return `Chrome/macOS a interrompu la demande ${BIOMETRIC_METHOD}. Vérifie que Touch ID fonctionne dans macOS, puis relance l’activation.`;
+      return `Chrome/macOS a annulé la demande WebAuthn (${error.name}). Vérifie que la fenêtre de validation n’a pas été refusée ou interrompue, puis relance. Si aucune fenêtre n’apparaît, le navigateur n’a pas réussi à joindre le trousseau Apple.`;
     }
     if (error && error.name === "ConstraintError") {
       return `L’appareil ne peut pas créer une clé biométrique répondant aux exigences demandées. Vérifie la configuration de ${BIOMETRIC_METHOD}.`;
