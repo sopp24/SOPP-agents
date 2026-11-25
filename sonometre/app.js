@@ -275,7 +275,7 @@
       startedAt = Date.now();
       elapsedBeforeStop = 0;
       readings = [];
-        calibrationCapture = null;
+      calibrationCapture = null;
       ui.live.classList.add("active");
       ui.live.innerHTML = "<i></i> MESURE ACTIVE";
       ui.start.hidden = true;
@@ -298,6 +298,7 @@
       audioContext = null;
       analyser = null;
       spectrumBuffer = null;
+      weightingFactors = null;
       sourceNode = null;
       setPermission(error && error.message ? error.message : "Impossible d'accéder à la source sonore. Vérifie les autorisations du navigateur.", "error");
       ui.sourceName.textContent = "Aucune source active";
@@ -329,6 +330,7 @@
     audioContext = null;
     analyser = null;
     spectrumBuffer = null;
+    weightingFactors = null;
     sourceNode = null;
     ui.live.classList.remove("active");
     ui.live.innerHTML = "<i></i> EN PAUSE";
@@ -605,7 +607,6 @@
 
   function resetStats() {
     readings = [];
-    lastRawSamples = [];
     elapsedBeforeStop = 0;
     if (startedAt) startedAt = Date.now();
     ui.elapsed.textContent = "00:00";
