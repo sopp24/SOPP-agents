@@ -28,7 +28,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: MEUST-Deezer-Companion
-          path: SOPP-dB-Deezer-Companion.zip
+          path: MEUST-Deezer-Companion.zip
           if-no-files-found: error
           retention-days: 30
 
