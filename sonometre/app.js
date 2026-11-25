@@ -644,6 +644,190 @@
     window.addEventListener("load", () => navigator.serviceWorker.register("./sw.js").catch((error) => console.warn("Service worker non installé", error)));
   }
 
+
+  // Deezer controls are available only when the optional browser companion is installed.
+  const deezerUi = {
+    refresh: $("#deezer-refresh-button"),
+    message: $("#deezer-message"),
+    status: $("#deezer-connection-status"),
+    player: $("#deezer-player"),
+    tabs: $("#deezer-tab-select"),
+    title: $("#deezer-track-title"),
+    artist: $("#deezer-track-artist"),
+    album: $("#deezer-track-album"),
+    cover: $("#deezer-cover"),
+    current: $("#deezer-current-time"),
+    duration: $("#deezer-duration"),
+    seek: $("#deezer-seek"),
+    toggle: $("#deezer-toggle"),
+    previous: $("#deezer-previous"),
+    next: $("#deezer-next"),
+    feedback: $("#deezer-control-feedback"),
+    openTab: $("#deezer-open-tab")
+  };
+  let deezerBridgeAvailable = false;
+  let deezerSelectedTab = null;
+  let deezerPoll = null;
+  let deezerRequestCounter = 0;
+  const deezerPending = new Map();
+
+  function deezerRequest(action, payload = {}, timeout = 4500) {
+    return new Promise((resolve) => {
+      const requestId = "sopp-db-" + (++deezerRequestCounter) + "-" + Date.now();
+      const timerId = window.setTimeout(() => {
+        deezerPending.delete(requestId);
+        resolve(null);
+      }, timeout);
+      deezerPending.set(requestId, (response) => {
+        window.clearTimeout(timerId);
+        resolve(response);
+      });
+      window.postMessage({ source: "SOPP_DB_PAGE", requestId, action, ...payload }, window.location.origin);
+    });
+  }
+
+  window.addEventListener("message", (event) => {
+    if (event.source !== window || event.origin !== window.location.origin) return;
+    const message = event.data;
+    if (!message || message.source !== "SOPP_DB_EXTENSION" || !message.requestId) return;
+    const resolver = deezerPending.get(message.requestId);
+    if (resolver) {
+      deezerPending.delete(message.requestId);
+      resolver(message.response || null);
+    }
+  });
+
+  function deezerTime(seconds) {
+    if (!Number.isFinite(seconds) || seconds < 0) return "0:00";
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return mins + ":" + String(secs).padStart(2, "0");
+  }
+
+  function deezerSetConnected(connected, message) {
+    deezerBridgeAvailable = connected;
+    deezerUi.status.textContent = connected ? "COMPAGNON CONNECTÉ" : "EXTENSION NON CONNECTÉE";
+    deezerUi.status.classList.toggle("connected", connected);
+    deezerUi.refresh.textContent = connected ? "Actualiser les onglets" : "Réessayer";
+    if (message) deezerUi.message.textContent = message;
+  }
+
+  function deezerRenderTabs(tabs) {
+    const previous = String(deezerSelectedTab || deezerUi.tabs.value || "");
+    deezerUi.tabs.innerHTML = "";
+    if (!tabs.length) {
+      const option = document.createElement("option");
+      option.value = "";
+      option.textContent = "Aucun onglet Deezer ouvert";
+      deezerUi.tabs.appendChild(option);
+      deezerSelectedTab = null;
+      deezerUi.player.hidden = true;
+      return;
+    }
+    tabs.forEach((tab) => {
+      const option = document.createElement("option");
+      option.value = String(tab.id);
+      option.textContent = tab.title || "Deezer";
+      deezerUi.tabs.appendChild(option);
+    });
+    const stillThere = tabs.some((tab) => String(tab.id) === previous);
+    deezerSelectedTab = stillThere ? Number(previous) : tabs[0].id;
+    deezerUi.tabs.value = String(deezerSelectedTab);
+    deezerUi.player.hidden = false;
+    deezerUi.message.textContent = tabs.length + " onglet" + (tabs.length > 1 ? "s" : "") + " Deezer détecté" + (tabs.length > 1 ? "s" : "") + ". Choisis celui que tu veux piloter.";
+  }
+
+  async function deezerRefresh() {
+    deezerUi.refresh.disabled = true;
+    deezerUi.message.textContent = "Recherche du compagnon et des onglets Deezer…";
+    const response = await deezerRequest("LIST_TABS");
+    deezerUi.refresh.disabled = false;
+    if (!response) {
+      deezerSetConnected(false, "Compagnon introuvable. Installe l'extension Chrome/Edge, puis recharge cette page.");
+      deezerUi.player.hidden = true;
+      return;
+    }
+    if (!response.ok) {
+      deezerSetConnected(false, response.error || "Le compagnon n'a pas répondu.");
+      return;
+    }
+    deezerSetConnected(true);
+    const tabs = response.tabs || [];
+    deezerRenderTabs(tabs);
+    if (tabs.length) await deezerGetState();
+    else deezerUi.message.textContent = "Compagnon connecté. Ouvre Deezer dans un autre onglet et lance une musique.";
+  }
+
+  async function deezerGetState() {
+    if (!deezerBridgeAvailable || !deezerSelectedTab) return;
+    const response = await deezerRequest("GET_STATE", { tabId: deezerSelectedTab }, 4000);
+    if (!response || !response.ok || !response.state) {
+      deezerUi.feedback.textContent = response && response.error ? response.error : "Impossible de lire le lecteur Deezer. Actualise l'onglet.";
+      return;
+    }
+    const state = response.state;
+    deezerUi.title.textContent = state.title || "Aucune musique détectée";
+    deezerUi.artist.textContent = state.artist || "Deezer";
+    deezerUi.album.textContent = state.album || "Lecteur Deezer";
+    if (state.cover && /^https:\/\//i.test(state.cover)) {
+      deezerUi.cover.src = state.cover;
+      deezerUi.cover.style.visibility = "visible";
+    } else {
+      deezerUi.cover.removeAttribute("src");
+      deezerUi.cover.style.visibility = "hidden";
+    }
+    const duration = Number(state.duration) || 0;
+    const current = Number(state.currentTime) || 0;
+    deezerUi.duration.textContent = deezerTime(duration);
+    deezerUi.current.textContent = deezerTime(current);
+    deezerUi.seek.max = String(Math.max(1, Math.floor(duration)));
+    deezerUi.seek.value = String(Math.min(duration, Math.floor(current)));
+    deezerUi.seek.disabled = !duration;
+    deezerUi.toggle.textContent = state.playing ? "Ⅱ" : "▶";
+    deezerUi.toggle.setAttribute("aria-label", state.playing ? "Mettre en pause" : "Reprendre la lecture");
+    deezerUi.openTab.href = state.url || "https://www.deezer.com/";
+    deezerUi.feedback.textContent = state.playing ? "Lecture en cours dans l'onglet Deezer sélectionné." : "Lecteur connecté. La musique est en pause ou prête à reprendre.";
+  }
+
+  async function deezerCommand(action, extra = {}) {
+    if (!deezerSelectedTab) {
+      deezerUi.feedback.textContent = "Ouvre d'abord Deezer dans un autre onglet.";
+      return;
+    }
+    [deezerUi.previous, deezerUi.toggle, deezerUi.next].forEach((button) => { button.disabled = true; });
+    const response = await deezerRequest("COMMAND", { tabId: deezerSelectedTab, command: action, ...extra }, 5000);
+    [deezerUi.previous, deezerUi.toggle, deezerUi.next].forEach((button) => { button.disabled = false; });
+    if (!response || !response.ok) {
+      deezerUi.feedback.textContent = response && response.error ? response.error : "Le lecteur Deezer n'a pas confirmé la commande. Vérifie qu'une musique est chargée.";
+      return;
+    }
+    deezerUi.feedback.textContent = response.message || "Commande envoyée à Deezer.";
+    window.setTimeout(deezerGetState, 350);
+  }
+
+  deezerUi.refresh.addEventListener("click", deezerRefresh);
+  deezerUi.tabs.addEventListener("change", () => {
+    deezerSelectedTab = deezerUi.tabs.value ? Number(deezerUi.tabs.value) : null;
+    deezerGetState();
+  });
+  deezerUi.previous.addEventListener("click", () => deezerCommand("PREVIOUS"));
+  deezerUi.toggle.addEventListener("click", async () => {
+    const response = await deezerRequest("GET_STATE", { tabId: deezerSelectedTab }, 3000);
+    const playing = Boolean(response && response.state && response.state.playing);
+    deezerCommand(playing ? "PAUSE" : "PLAY");
+  });
+  deezerUi.next.addEventListener("click", () => deezerCommand("NEXT"));
+  deezerUi.seek.addEventListener("change", () => deezerCommand("SEEK", { seconds: Number(deezerUi.seek.value) }));
+  deezerUi.cover.addEventListener("error", () => { deezerUi.cover.style.visibility = "hidden"; });
+  deezerPoll = window.setInterval(() => {
+    if (deezerBridgeAvailable && deezerSelectedTab && !document.hidden) deezerGetState();
+  }, 2500);
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden && deezerBridgeAvailable) deezerRefresh();
+  });
+  deezerRefresh();
+
+
   loadCalibration();
   refreshMicrophones();
   drawChart();
