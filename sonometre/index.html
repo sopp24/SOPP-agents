@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#090a0c">
+  <meta name="description" content="SOPP dB — sonomètre web pour mesurer le niveau sonore avec le microphone ou l'audio d'un onglet partagé.">
+  <meta name="color-scheme" content="dark">
+  <title>SOPP dB — Sonomètre</title>
+  <link rel="icon" href="./icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="./icon.svg">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <div class="ambient ambient-one" aria-hidden="true"></div>
+  <div class="ambient ambient-two" aria-hidden="true"></div>
+
+  <header class="topbar">
+    <a class="brand" href="./" aria-label="SOPP dB, accueil">
+      <span class="brand-symbol" aria-hidden="true">
+        <svg viewBox="0 0 40 40" fill="none"><path d="M4 22h5l3.1-9 5.1 17 4.8-22 4.7 18 3.1-8H36" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </span>
+      <span class="brand-copy"><strong>SOPP <em>dB</em></strong><small>SONOMÈTRE WEB</small></span>
+    </a>
+    <div class="top-actions">
+      <span class="privacy-tag"><span class="privacy-dot"></span> Traitement local</span>
+      <button id="install-button" class="icon-button install-button" type="button" hidden aria-label="Installer l'application" title="Installer l'application">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v11m0 0 4-4m-4 4-4-4M4 17v3h16v-3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <a class="back-link" href="https://sopp24.github.io/SOPP-agents/" target="_blank" rel="noopener noreferrer">SOPP Agents <span>↗</span></a>
+    </div>
+  </header>
+
+  <main class="shell">
+    <section class="intro">
+      <div>
+        <p class="eyebrow"><span class="eyebrow-line"></span> MESURE ACOUSTIQUE EN TEMPS RÉEL</p>
+        <h1>Le son, <span>sans approximation cachée.</span></h1>
+        <p class="intro-copy">Mesure l'ambiance autour de ton ordinateur ou l'audio d'un onglet précis. Visualise le niveau, les pics et la durée d'exposition.</p>
+      </div>
+      <div class="intro-mark" aria-hidden="true">
+        <svg viewBox="0 0 120 120" fill="none"><circle cx="60" cy="60" r="48" stroke="currentColor" stroke-opacity=".13" stroke-width="1"/><circle cx="60" cy="60" r="35" stroke="currentColor" stroke-opacity=".18" stroke-width="1"/><path d="M13 61h18l8-20 13 42 13-57 13 57 9-22h20" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+    </section>
+
+    <section class="source-panel panel">
+      <div class="section-heading">
+        <div><span class="step-index">01</span><h2>Choisir la source sonore</h2></div>
+        <span class="section-note">Une source à la fois</span>
+      </div>
+      <div class="source-options" role="group" aria-label="Source de mesure">
+        <button class="source-option active" type="button" data-mode="mic" aria-pressed="true">
+          <span class="source-icon">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="12" rx="3" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v3m-4 0h8" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+          </span>
+          <span class="source-label"><strong>Micro de l'ordinateur</strong><small>Mesure le bruit autour de toi</small></span>
+          <span class="source-check">✓</span>
+        </button>
+        <button class="source-option" type="button" data-mode="tab" aria-pressed="false">
+          <span class="source-icon">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="13" rx="2" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M8 21h8m-4-4v4m-2-9 5-2-5-2v4Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+          <span class="source-label"><strong>Audio d'un onglet</strong><small>Choisis un onglet et partage son audio</small></span>
+          <span class="source-check">✓</span>
+        </button>
+      </div>
+      <div class="source-detail" id="mic-detail">
+        <label for="microphone-select">Microphone détecté</label>
+        <div class="select-wrap">
+          <select id="microphone-select" disabled><option>Autorise le micro pour afficher les appareils</option></select>
+          <span class="select-chevron">⌄</span>
+        </div>
+        <p class="helper-text">Le nom affiché dépend des informations transmises par ton navigateur et ton ordinateur.</p>
+      </div>
+      <div class="source-detail tab-detail" id="tab-detail" hidden>
+        <div class="tab-explainer">
+          <span class="mini-icon">↗</span>
+          <p>Au démarrage, le navigateur ouvrira son sélecteur de partage. Choisis <strong>l'onglet voulu</strong> et coche <strong>Partager l'audio</strong> si cette option est proposée.</p>
+        </div>
+        <p class="helper-text">Le navigateur ne transmet pas toujours le titre exact de l'onglet. SOPP dB indiquera la source partagée, sans prétendre identifier un onglet qu'il ne peut pas lire.</p>
+      </div>
+      <div class="source-footer">
+        <div class="detected-device"><span class="device-dot"></span><span id="device-environment">Environnement : détection au démarrage</span></div>
+        <button id="start-button" class="primary-button" type="button"><span class="button-play">▶</span> Démarrer la mesure</button>
+        <button id="stop-button" class="stop-button" type="button" hidden>■ Arrêter</button>
+      </div>
+      <p id="permission-message" class="permission-message" role="status" aria-live="polite">Le microphone ou le partage d'onglet sera demandé uniquement au démarrage.</p>
+    </section>
+
+    <section class="measurement-grid">
+      <article class="meter-panel panel">
+        <div class="meter-topline">
+          <div><span class="step-index">02</span><span class="meter-kicker">NIVEAU SONORE ACTUEL</span></div>
+          <span id="live-indicator" class="live-indicator"><i></i> EN ATTENTE</span>
+        </div>
+        <div class="reading-area">
+          <div class="reading-line"><strong id="main-reading">—</strong><span id="reading-unit">dB(A)</span></div>
+          <div id="status-pill" class="status-pill neutral">En attente de mesure</div>
+          <p id="reading-caption" class="reading-caption">Démarre une mesure pour afficher le niveau sonore.</p>
+        </div>
+        <div class="meter-scale">
+          <div class="scale-labels"><span>30</span><span>80</span><span>120 dB</span></div>
+          <div class="meter-track" id="meter-track" role="meter" aria-label="Niveau sonore" aria-valuemin="30" aria-valuemax="120" aria-valuenow="30">
+            <div class="meter-fill" id="meter-fill"></div>
+            <div class="threshold-marker" style="left:55.56%" title="Seuil de vigilance : 80 dB"></div>
+            <div class="threshold-marker red-marker" style="left:61.11%" title="Seuil renforcé : 85 dB"></div>
+          </div>
+          <div class="meter-legend"><span class="legend-green">Calme</span><span class="legend-yellow">Vigilance</span><span class="legend-red">Élevé</span></div>
+        </div>
+        <div class="signal-row">
+          <span>Signal reçu</span><strong id="signal-reading">— dBFS</strong>
+          <span class="signal-explainer">Niveau numérique du micro</span>
+        </div>
+      </article>
+
+      <article class="source-status-panel panel">
+        <div class="section-heading compact">
+          <div><span class="step-index">03</span><h2>Source détectée</h2></div>
+          <span class="source-live-icon">⌁</span>
+        </div>
+        <div class="detected-source-icon" id="detected-source-icon">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v11m0 0 4-4m-4 4-4-4M5 18v3h14v-3" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <p class="detected-source-name" id="detected-source-name">Aucune source active</p>
+        <p class="detected-source-sub" id="detected-source-sub">La source apparaîtra ici au démarrage.</p>
+        <div class="source-metadata">
+          <div><span>ORDINATEUR</span><strong id="system-name">—</strong></div>
+          <div><span>NAVIGATEUR</span><strong id="browser-name">—</strong></div>
+          <div><span>FRÉQUENCE</span><strong id="sample-rate">—</strong></div>
+          <div><span>CANAL</span><strong id="channel-count">—</strong></div>
+        </div>
+      </article>
+    </section>
+
+    <section class="details-grid">
+      <article class="stats-panel panel">
+        <div class="section-heading compact">
+          <div><span class="step-index">04</span><h2>Statistiques de mesure</h2></div>
+          <span id="elapsed-time" class="elapsed-time">00:00</span>
+        </div>
+        <div class="stats-cards">
+          <div class="stat-card"><span>MINIMUM</span><strong id="minimum-reading">—</strong><small id="stats-unit">dB(A)</small></div>
+          <div class="stat-card"><span>MOYENNE</span><strong id="average-reading">—</strong><small id="stats-unit-2">dB(A)</small></div>
+          <div class="stat-card"><span>CRÊTE MAX.</span><strong id="maximum-reading">—</strong><small id="stats-unit-3">dB(A)</small></div>
+        </div>
+        <div class="chart-heading"><span>ÉVOLUTION DU NIVEAU</span><span id="chart-window">En direct · 60 dernières secondes</span></div>
+        <div class="chart-wrap"><canvas id="level-chart" aria-label="Graphique de l'évolution du niveau sonore" role="img"></canvas><div id="chart-empty" class="chart-empty">Le graphique apparaîtra pendant la mesure.</div></div>
+        <div class="stats-actions">
+          <button id="export-button" class="subtle-button" type="button" disabled>↓ Exporter en CSV</button>
+          <button id="reset-button" class="text-button" type="button" disabled>Réinitialiser les stats</button>
+        </div>
+      </article>
+
+      <article class="calibration-panel panel">
+        <div class="section-heading compact">
+          <div><span class="step-index">05</span><h2>Étalonnage</h2></div>
+          <span id="calibration-state" class="calibration-badge">NON ÉTALONNÉ</span>
+        </div>
+        <p class="calibration-intro">Un microphone d'ordinateur n'est pas un sonomètre certifié. Pour afficher une estimation acoustique en dB(A), compare-le à une référence fiable.</p>
+        <label for="reference-level" class="field-label">Valeur de référence connue</label>
+        <div class="reference-input"><input id="reference-level" type="number" min="30" max="130" step="0.1" value="80" inputmode="decimal"><span>dB(A)</span></div>
+        <button id="calibrate-button" class="calibrate-button" type="button" disabled>Étalonner sur 5 secondes</button>
+        <p id="calibration-message" class="calibration-message">Démarre une mesure, place ton ordinateur près d'un sonomètre de référence, puis lance l'étalonnage.</p>
+        <div class="fine-adjust">
+          <div class="fine-adjust-label"><label for="fine-adjust-slider">Ajustement fin</label><strong id="fine-adjust-value">0,0 dB</strong></div>
+          <input id="fine-adjust-slider" type="range" min="-10" max="10" step="0.5" value="0" disabled>
+        </div>
+        <button id="clear-calibration-button" class="text-button clear-calibration" type="button" disabled>Effacer l'étalonnage</button>
+      </article>
+    </section>
+
+    <section class="exposure-panel panel">
+      <div class="exposure-heading">
+        <div><span class="step-index">06</span><h2>Comprendre ton exposition</h2></div>
+        <span class="exposure-tag">REPÈRES INDICATIFS</span>
+      </div>
+      <div class="exposure-ranges">
+        <div class="exposure-range green-range"><span class="range-dot"></span><div><strong>Moins de 80 dB</strong><p>Niveau généralement considéré comme acceptable pour une exposition prolongée.</p></div></div>
+        <div class="exposure-range yellow-range"><span class="range-dot"></span><div><strong>80 à 84 dB</strong><p>Le niveau est élevé. Réduis le volume ou éloigne-toi si l'exposition dure.</p></div></div>
+        <div class="exposure-range red-range"><span class="range-dot"></span><div><strong>85 dB et plus</strong><p>Réduis l'exposition et envisage une protection auditive adaptée.</p></div></div>
+      </div>
+      <div class="apple-reference"><span class="apple-reference-icon">i</span><p>Repères publiés par Apple : environ 5 h 30 à 80 dB, 1 h 45 à 85 dB, 30 min à 90 dB et 10 min à 95 dB par jour. Ces durées sont des repères d'exposition, pas un diagnostic individuel.</p><a href="https://support.apple.com/en-ie/102315" target="_blank" rel="noopener noreferrer">Voir la référence ↗</a></div>
+    </section>
+
+    <section class="privacy-panel">
+      <div class="privacy-shield" aria-hidden="true">✓</div>
+      <div><strong>Ta mesure reste sur ton ordinateur.</strong><p>Aucun son n'est enregistré, envoyé à un serveur ou conservé. Le navigateur analyse le flux en direct, puis le flux est arrêté lorsque tu termines la mesure. L'export CSV ne contient que les niveaux calculés et les horodatages.</p></div>
+      <button id="privacy-info-button" class="text-button" type="button">À propos de la précision</button>
+    </section>
+
+    <footer class="app-footer"><span>SOPP dB <b>·</b> Un outil SOPP</span><span>Mesure indicative · Non destiné à remplacer un sonomètre certifié</span><a href="https://github.com/sopp24/SOPP-agents/tree/main/sonometre" target="_blank" rel="noopener noreferrer">Code source ↗</a></footer>
+  </main>
+
+  <div id="precision-modal" class="modal-backdrop" hidden>
+    <section class="modal-card" role="dialog" aria-modal="true" aria-labelledby="precision-title">
+      <button id="close-modal" class="modal-close" type="button" aria-label="Fermer">×</button>
+      <p class="eyebrow">À LIRE AVANT UTILISATION</p>
+      <h2 id="precision-title">Comprendre la précision</h2>
+      <p>Le navigateur mesure le signal fourni par le microphone. Il ne connaît pas sa sensibilité acoustique réelle. Sans étalonnage, le niveau affiché en dBFS décrit le signal numérique, pas le niveau de pression acoustique dans la pièce.</p>
+      <p>Après étalonnage, l'application convertit ce signal en estimation dB(A). Le résultat reste dépendant du microphone, de son traitement interne, de sa position, de la pièce et du navigateur. Il ne constitue pas une mesure réglementaire, médicale ou certifiée.</p>
+      <p>Pour une mesure fiable, utilise un sonomètre conforme et étalonné. Évite le vent, les manipulations du micro et les haut-parleurs proches.</p>
+      <button id="modal-ok" class="primary-button modal-ok" type="button">J'ai compris</button>
+    </section>
+  </div>
+  <script src="./app.js" defer></script>
+</body>
+</html>
