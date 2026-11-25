@@ -51,8 +51,9 @@ function readPlayerState() {
   const artwork = metadata && Array.isArray(metadata.artwork) && metadata.artwork.length
     ? metadata.artwork[metadata.artwork.length - 1].src
     : "";
-  const duration = activeMedia && Number.isFinite(activeMedia.duration) ? activeMedia.duration : 0;
-  const currentTime = activeMedia && Number.isFinite(activeMedia.currentTime) ? activeMedia.currentTime : 0;
+  const timeline = document.querySelector('input[type="range"][aria-label*="progress" i],input[type="range"][aria-label*="position" i],[role="slider"][aria-label*="progress" i],[role="slider"][aria-label*="position" i]');
+  const duration = activeMedia && Number.isFinite(activeMedia.duration) ? activeMedia.duration : (timeline ? Number(timeline.getAttribute("aria-valuemax") || timeline.max) || 0 : 0);
+  const currentTime = activeMedia && Number.isFinite(activeMedia.currentTime) ? activeMedia.currentTime : (timeline ? Number(timeline.getAttribute("aria-valuenow") || timeline.value) || 0 : 0);
   const playing = Boolean(
     (navigator.mediaSession && navigator.mediaSession.playbackState === "playing") ||
     (activeMedia && !activeMedia.paused && !activeMedia.ended)
@@ -101,7 +102,10 @@ function performPlayerCommand(command, seconds) {
     if (range) {
       const max = Number(range.max) || 100;
       const min = Number(range.min) || 0;
-      const value = Math.max(min, Math.min(max, targetSeconds));
+      const media = Array.from(document.querySelectorAll("audio, video")).find(item => Number.isFinite(item.duration) && item.duration > 0);
+      const duration = media ? media.duration : max;
+      const absoluteValue = max <= 100 && duration > max ? min + (targetSeconds / duration) * (max - min) : targetSeconds;
+      const value = Math.max(min, Math.min(max, absoluteValue));
       const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value").set;
       setter.call(range, String(value));
       range.dispatchEvent(new Event("input", { bubbles: true }));
@@ -115,7 +119,8 @@ function performPlayerCommand(command, seconds) {
       const rect = slider.getBoundingClientRect();
       const max = Number(slider.getAttribute("aria-valuemax")) || 100;
       const min = Number(slider.getAttribute("aria-valuemin")) || 0;
-      const duration = readDurationFromDom();
+      const media = Array.from(document.querySelectorAll("audio, video")).find(item => Number.isFinite(item.duration) && item.duration > 0);
+      const duration = media ? media.duration : max;
       const target = duration > 0 ? targetSeconds / duration : (targetSeconds - min) / Math.max(1, max - min);
       const ratio = Math.max(0, Math.min(1, target));
       const x = rect.left + rect.width * ratio;
@@ -150,12 +155,6 @@ function performPlayerCommand(command, seconds) {
   return { ok: true, message: command === "NEXT" ? "Piste suivante demandée." : command === "PREVIOUS" ? "Piste précédente demandée." : command === "PAUSE" ? "Pause demandée." : "Lecture demandée." };
 }
 
-function readDurationFromDom() {
-  const media = Array.from(document.querySelectorAll("audio,video")).find(item => Number.isFinite(item.duration) && item.duration > 0);
-  if (media) return media.duration;
-  const node = document.querySelector('[aria-label*="progress" i],[aria-label*="position" i],[role="slider"]');
-  return node ? Number(node.getAttribute("aria-valuemax")) || 0 : 0;
-}
 
 async function getPlayerState(tabId) {
   await requireDeezerTab(tabId);
