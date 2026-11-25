@@ -4,9 +4,9 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#090a0c">
-  <meta name="description" content="SOPP dB — sonomètre web pour mesurer le niveau sonore avec le microphone ou l'audio d'un onglet partagé.">
+  <meta name="description" content="MEUST — sonomètre acoustique web : mesure locale, analyse audio, étalonnage indicatif et compagnon Deezer.">
   <meta name="color-scheme" content="dark">
-  <title>SOPP dB — Sonomètre</title>
+  <title>MEUST — Sonomètre acoustique</title>
   <link rel="icon" href="./icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="./icon.svg">
   <link rel="manifest" href="./manifest.webmanifest">
@@ -17,11 +17,9 @@
   <div class="ambient ambient-two" aria-hidden="true"></div>
 
   <header class="topbar">
-    <a class="brand" href="./" aria-label="SOPP dB, accueil">
-      <span class="brand-symbol" aria-hidden="true">
-        <svg viewBox="0 0 40 40" fill="none"><path d="M4 22h5l3.1-9 5.1 17 4.8-22 4.7 18 3.1-8H36" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </span>
-      <span class="brand-copy"><strong>SOPP <em>dB</em></strong><small>SONOMÈTRE WEB</small></span>
+    <a class="brand" href="./" aria-label="MEUST, accueil">
+      <span class="brand-symbol" aria-hidden="true"><img src="./icon.svg" alt=""></span>
+      <span class="brand-copy"><strong>MEUST</strong><small>SONOMÈTRE ACOUSTIQUE</small></span>
     </a>
     <div class="top-actions">
       <span class="privacy-tag"><span class="privacy-dot"></span> Traitement local</span>
@@ -39,9 +37,7 @@
         <h1>Le son, <span>sans approximation cachée.</span></h1>
         <p class="intro-copy">Mesure l'ambiance autour de ton ordinateur ou l'audio d'un onglet précis. Visualise le niveau, les pics et la durée d'exposition.</p>
       </div>
-      <div class="intro-mark" aria-hidden="true">
-        <svg viewBox="0 0 120 120" fill="none"><circle cx="60" cy="60" r="48" stroke="currentColor" stroke-opacity=".13" stroke-width="1"/><circle cx="60" cy="60" r="35" stroke="currentColor" stroke-opacity=".18" stroke-width="1"/><path d="M13 61h18l8-20 13 42 13-57 13 57 9-22h20" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </div>
+      <div class="intro-mark" aria-hidden="true"><img src="./icon.svg" alt=""></div>
     </section>
 
     <section class="source-panel panel">
@@ -80,7 +76,7 @@
         </div>
         <label for="tab-source-label">Nom de l'onglet (facultatif)</label>
         <div class="select-wrap"><input id="tab-source-label" class="tab-source-input" type="text" maxlength="60" placeholder="Ex. : YouTube, Spotify, visioconférence"></div>
-        <p class="helper-text">Le navigateur ne transmet pas toujours le titre exact de l'onglet. SOPP dB indiquera la source partagée, sans prétendre identifier un onglet qu'il ne peut pas lire.</p>
+        <p class="helper-text">Le navigateur ne transmet pas toujours le titre exact de l'onglet. MEUST indiquera la source partagée, sans prétendre identifier un onglet qu'il ne peut pas lire.</p>
       </div>
       <div class="source-footer">
         <div class="detected-device"><span class="device-dot"></span><span id="device-environment">Environnement : détection au démarrage</span></div>
@@ -177,14 +173,14 @@
       <div class="deezer-heading">
         <div class="deezer-brand">
           <span class="deezer-mark" aria-hidden="true">≋</span>
-          <div><h2 id="deezer-heading">Deezer Remote</h2><p>Mini-télécommande depuis SOPP dB</p></div>
+          <div><h2 id="deezer-heading">Compagnon Deezer</h2><p>Le lecteur Deezer, directement dans MEUST</p></div>
         </div>
         <span id="deezer-connection-status" class="deezer-connection-status">EXTENSION NON CONNECTÉE</span>
       </div>
       <div class="deezer-connect-row">
-        <p id="deezer-message" role="status" aria-live="polite">Installe le compagnon Chrome/Edge, puis ouvre Deezer dans un autre onglet pour piloter ta musique ici.</p>
+        <p id="deezer-message" role="status" aria-live="polite">Connecte le compagnon Chrome / Edge, puis sélectionne un onglet Deezer pour afficher et piloter la lecture.</p>
         <div class="deezer-connect-actions">
-          <button id="deezer-refresh-button" class="subtle-button" type="button">Connecter / actualiser</button>
+          <button id="deezer-refresh-button" class="subtle-button" type="button">Détecter / actualiser</button>
           <a class="deezer-help-link" href="https://github.com/sopp24/SOPP-agents/blob/main/sonometre/extension/README.md" target="_blank" rel="noopener noreferrer">Installer le compagnon ↗</a>
           <a class="deezer-help-link" href="https://www.deezer.com/" target="_blank" rel="noopener noreferrer">Ouvrir Deezer ↗</a>
         </div>
@@ -208,9 +204,14 @@
             <select id="deezer-tab-select" aria-label="Choisir l'onglet Deezer"></select>
           </label>
         </div>
-        <p id="deezer-control-feedback" class="deezer-control-feedback">Les commandes dépendent de la structure actuelle du lecteur Deezer.</p>
+        <div class="deezer-volume">
+          <label for="deezer-volume">VOLUME</label>
+          <input id="deezer-volume" type="range" min="0" max="100" value="70" step="1" aria-label="Volume Deezer" disabled>
+          <output id="deezer-volume-value" for="deezer-volume">— %</output>
+        </div>
+        <p id="deezer-control-feedback" class="deezer-control-feedback">Lecture, navigation, progression et volume sont pilotés localement dans l’onglet sélectionné.</p>
       </div>
-      <p class="deezer-disclaimer">Contrôle local via une extension que tu installes toi-même. Les commandes agissent sur l'onglet Deezer choisi, pas sur un compte ou un appareil distant. L'accès à la progression et aux pochettes dépend des informations exposées par le lecteur.</p>
+      <p class="deezer-disclaimer">Contrôle local via une extension que tu installes toi-même. Les commandes agissent uniquement sur l’onglet Deezer choisi, pas sur un compte ou un appareil distant. Les métadonnées, la progression et le volume dépendent des fonctions exposées par le lecteur.</p>
     </section>
 
     <section class="exposure-panel panel">
@@ -232,7 +233,7 @@
       <button id="privacy-info-button" class="text-button" type="button">À propos de la précision</button>
     </section>
 
-    <footer class="app-footer"><span>SOPP dB <b>·</b> Un outil SOPP</span><span>Mesure indicative · Non destiné à remplacer un sonomètre certifié</span><a href="https://github.com/sopp24/SOPP-agents/tree/main/sonometre" target="_blank" rel="noopener noreferrer">Code source ↗</a></footer>
+    <footer class="app-footer"><span>MEUST <b>·</b> Un outil SOPP</span><span>Mesure indicative · Non destiné à remplacer un sonomètre certifié</span><a href="https://github.com/sopp24/SOPP-agents/tree/main/sonometre" target="_blank" rel="noopener noreferrer">Code source ↗</a></footer>
   </main>
 
   <div id="precision-modal" class="modal-backdrop" hidden>
