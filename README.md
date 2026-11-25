@@ -9,11 +9,12 @@ Bibliothèque personnelle des applications web développées par Adam Soppelsa.
 - **DRESSOPP** — assistant personnel de style : découverte de vêtements, apprentissage des préférences, garde-robe et tenues inspirées du tableau Pinterest `mode`.
 - **G.E.N.I.S** — assistant personnel web installable, conversation vocale et textuelle, mémoire locale et outils IA.
 - **ITSoppSTUDCORP** — cartes mentales interactives EcoSTUD et MediSTUD autour de la mobilité étudiante.
+- **MEUST** — sonomètre acoustique web : mesure par microphone ou audio d’onglet, étalonnage indicatif et compagnon Deezer pour piloter le lecteur du navigateur. [Application](https://sopp24.github.io/SOPP-agents/sonometre/) · [Code source](https://github.com/sopp24/SOPP-agents/tree/main/sonometre).
 - **PEPPER** — compagnon de voyage autonome : hébergement, billets et trajets train / avion / voiture, marges d’arrivée, itinéraire, activités à cocher, météo et budget. [Application](https://sopp24.github.io/PEPPER/) · [Dépôt dédié](https://github.com/sopp24/PEPPER). PIMI est piloté depuis ChatGPT ; les données restent locales.
 - **RugbyXVNews** — média consacré au rugby français et international : actualités, centre de match, calendriers, classements, articles, galerie et podcasts. [Application](https://sopp24.github.io/RugbyXVNews/) · [Dépôt dédié](https://github.com/sopp24/RugbyXVNews).
 - **SOPP-Language** — interprète multilingue avec traduction orale, conversation, texte et documents.
 
-La bibliothèque et la recherche affichent ces huit applications dans le même ordre alphabétique.
+La bibliothèque SOPP Agents référence neuf applications.
 
 ## Bouton de retour partagé
 

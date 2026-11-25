@@ -5,7 +5,7 @@
 .tab-source-input{width:100%;height:37px;padding:0 11px;border:1px solid #30363c;border-radius:9px;outline:none;color:#f2f3f4;background:#15191d;font:inherit;font-size:11px}.tab-source-input:focus{border-color:var(--orange)}
 
 
-/* SOPP dB — Deezer companion */
+/* MEUST — Deezer companion */
 .deezer-panel{margin-top:16px;padding:21px 23px;border-color:rgba(151,92,227,.23);background:linear-gradient(145deg,rgba(32,24,43,.94),rgba(17,18,22,.98))}
 .deezer-heading{display:flex;align-items:center;justify-content:space-between;gap:14px}
 .deezer-brand{display:flex;align-items:center;gap:11px}
@@ -41,3 +41,21 @@
 .deezer-disclaimer{margin:13px 0 0;color:#766c80;font-size:8px;line-height:1.5}
 @media(max-width:700px){.deezer-connect-row{align-items:flex-start;flex-direction:column}.deezer-connect-actions{flex-wrap:wrap}.deezer-tab-picker{margin-left:12px}.deezer-tab-picker select{max-width:160px}}
 @media(max-width:430px){.deezer-panel{padding:16px}.deezer-heading{align-items:flex-start;flex-direction:column}.deezer-connection-status{align-self:flex-end;margin-top:-3px}.deezer-controls{gap:9px}.deezer-tab-picker{gap:5px;font-size:7px}.deezer-tab-picker select{max-width:128px}.deezer-track-copy strong{font-size:11px}}
+
+
+/* MEUST — identité acoustique SOPP : graphite, chrome et signal orange. */
+.brand-symbol img{display:block;width:100%;height:100%;object-fit:contain;border-radius:10px}
+.intro-mark img{display:block;width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 12px 24px rgba(238,114,3,.12))}
+.deezer-panel{border-color:rgba(238,114,3,.22);background:linear-gradient(145deg,rgba(37,27,18,.82),rgba(17,18,22,.98))}
+.deezer-mark{border:1px solid rgba(238,114,3,.22);background:#14171a}
+.deezer-mark svg{display:block;width:25px;height:25px}
+.deezer-help-link{color:#f1a76e}
+.deezer-progress input,.deezer-volume input{accent-color:var(--orange)}
+.deezer-control{border-color:rgba(238,114,3,.22);color:#f2d8c4}
+.deezer-control.primary{border-color:#ff9a4d;color:#211307;background:linear-gradient(145deg,#ffc18d,#ee7203)}
+.deezer-volume{display:grid;grid-template-columns:52px minmax(0,1fr) 42px;align-items:center;gap:11px;margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,.06)}
+.deezer-volume label{color:#9b8b7c;font-size:8px;font-weight:800;letter-spacing:.12em}
+.deezer-volume input{width:100%;min-width:0}
+.deezer-volume output{color:#c5b4a5;text-align:right;font-size:9px;font-variant-numeric:tabular-nums}
+.deezer-volume input:disabled{opacity:.35}
+@media(max-width:430px){.deezer-volume{grid-template-columns:44px minmax(0,1fr) 36px;gap:8px}}

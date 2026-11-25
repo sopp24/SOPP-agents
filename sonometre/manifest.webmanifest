@@ -1,7 +1,7 @@
 {
-  "name": "SOPP dB — Sonomètre",
-  "short_name": "SOPP dB",
-  "description": "Sonomètre web, suivi d'exposition et mini-télécommande Deezer facultative.",
+  "name": "MEUST — Sonomètre acoustique",
+  "short_name": "MEUST",
+  "description": "Sonomètre acoustique web, suivi d’exposition et compagnon Deezer facultatif.",
   "lang": "fr",
   "start_url": "./",
   "scope": "./",
@@ -9,6 +9,11 @@
   "background_color": "#090a0c",
   "theme_color": "#090a0c",
   "icons": [
-    { "src": "./icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+    {
+      "src": "./icon.svg?v=meust-20261125",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
   ]
 }

@@ -1,9 +1,9 @@
 {
   "manifest_version": 3,
-  "name": "SOPP dB — Deezer Companion",
-  "short_name": "SOPP Deezer",
-  "version": "1.0.0",
-  "description": "Ajoute une mini-télécommande Deezer à SOPP dB : lecture, pause, piste précédente/suivante, pochette et progression.",
+  "name": "MEUST — Compagnon Deezer",
+  "short_name": "MEUST Deezer",
+  "version": "1.1.0",
+  "description": "Pilote le lecteur Deezer de ton navigateur depuis MEUST : lecture, pause, pistes, progression, volume et métadonnées.",
   "permissions": [
     "tabs",
     "scripting"
@@ -28,6 +28,6 @@
     }
   ],
   "action": {
-    "default_title": "SOPP dB — Deezer Companion"
+    "default_title": "MEUST — Compagnon Deezer"
   }
 }
