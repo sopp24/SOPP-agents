@@ -162,6 +162,42 @@ html.biometric-locked body > :not(#biometric-lock) {
 }
 
 
+.biometric-lock-code {
+  display: block;
+  width: 100%;
+  min-height: 50px;
+  margin: 0 0 10px;
+  padding: 0 16px;
+  border: 1px solid rgba(255, 255, 255, .22);
+  border-radius: 13px;
+  color: #f7f7f8;
+  background: rgba(255, 255, 255, .06);
+  font: inherit;
+  font-size: 15px;
+}
+
+.biometric-lock-code[hidden],
+.biometric-lock-link[hidden] {
+  display: none;
+}
+
+.biometric-lock-link {
+  margin: 12px 0 0;
+  padding: 4px 8px;
+  border: 0;
+  color: #b9bbc2;
+  background: none;
+  font: inherit;
+  font-size: 12px;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.biometric-lock-link:focus-visible {
+  outline: 3px solid rgba(237, 120, 197, .55);
+  outline-offset: 2px;
+}
+
 html:not(.biometric-locked) .biometric-lock {
   display: none;
 }

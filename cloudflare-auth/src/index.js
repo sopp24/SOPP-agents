@@ -6,9 +6,10 @@ import {
 } from "@simplewebauthn/server";
 
 const CHALLENGE_TTL_SECONDS = 5 * 60;
-const SESSION_TTL_SECONDS = 10 * 60;
+const SESSION_TTL_SECONDS = 8 * 60 * 60;
+const MAX_CREDENTIALS = 5;
 const RATE_WINDOW_SECONDS = 10 * 60;
-const RATE_LIMIT = 12;
+const RATE_LIMIT = 60;
 const MAX_BODY_BYTES = 100_000;
 
 function json(data, status = 200, headers = {}) {
@@ -70,9 +71,9 @@ async function readBody(request) {
   return JSON.parse(text || "{}");
 }
 
-async function isEnrolled(env) {
-  const row = await env.DB.prepare("SELECT id FROM credentials LIMIT 1").first();
-  return Boolean(row);
+async function countCredentials(env) {
+  const row = await env.DB.prepare("SELECT COUNT(*) AS n FROM credentials").first();
+  return Number(row?.n || 0);
 }
 
 async function requireEnrollmentCode(request, env) {
@@ -168,19 +169,31 @@ async function handle(request, env) {
     return json({ status: "ok", service: "sopp-agents-auth" }, 200, headers);
   }
 
-  if (!(await rateLimit(request, env))) return json({ error: "RATE_LIMITED" }, 429, headers);
+  // La simple vérification d'un jeton (/session) n'est pas limitée : les applications
+  // l'appellent à chaque ouverture. Les routes d'inscription et d'authentification le sont.
+  const isSessionCheck = url.pathname === "/session" && request.method === "GET";
+  if (!isSessionCheck && !(await rateLimit(request, env))) return json({ error: "RATE_LIMITED" }, 429, headers);
 
   if (url.pathname === "/register/options" && request.method === "POST") {
-    if (await isEnrolled(env)) return json({ error: "ALREADY_ENROLLED" }, 409, headers);
     if (!(await requireEnrollmentCode(request, env))) return json({ error: "INVALID_ENROLLMENT_CODE" }, 401, headers);
+    if ((await countCredentials(env)) >= MAX_CREDENTIALS) return json({ error: "TOO_MANY_DEVICES" }, 409, headers);
 
+    const existing = await env.DB.prepare("SELECT id, transports FROM credentials").all();
+    // Identifiant utilisateur aléatoire par appareil : deux passkeys du même site
+    // (Face ID sur iPhone, Touch ID sur Mac) ne s'écrasent plus via le trousseau iCloud.
+    const userID = crypto.getRandomValues(new Uint8Array(16));
     const options = await generateRegistrationOptions({
       rpName: env.RP_NAME || "SOPP Agents",
       rpID: env.RP_ID || "sopp24.github.io",
-      userID: new TextEncoder().encode("sopp-agents-owner-v1"),
+      userID,
       userName: "sopp-agents-owner",
       userDisplayName: "SOPP Agents",
       attestationType: "none",
+      excludeCredentials: existing.results.map((row) => ({
+        id: row.id,
+        transports: JSON.parse(row.transports || "[]"),
+      })),
+      supportedAlgorithmIDs: [-7, -257],
       authenticatorSelection: {
         authenticatorAttachment: "platform",
         residentKey: "required",
@@ -193,8 +206,8 @@ async function handle(request, env) {
   }
 
   if (url.pathname === "/register/verify" && request.method === "POST") {
-    if (await isEnrolled(env)) return json({ error: "ALREADY_ENROLLED" }, 409, headers);
     if (!(await requireEnrollmentCode(request, env))) return json({ error: "INVALID_ENROLLMENT_CODE" }, 401, headers);
+    if ((await countCredentials(env)) >= MAX_CREDENTIALS) return json({ error: "TOO_MANY_DEVICES" }, 409, headers);
     const body = await readBody(request);
     const expectedChallenge = await takeChallenge(env, body.challengeId, "registration");
     if (!expectedChallenge) return json({ error: "CHALLENGE_EXPIRED" }, 400, headers);
@@ -212,7 +225,7 @@ async function handle(request, env) {
 
     const credential = verification.registrationInfo.credential;
     await env.DB.prepare(
-      "INSERT INTO credentials (slot, id, public_key, counter, transports, device_type, backed_up, created_at) VALUES (1, ?, ?, ?, ?, ?, ?, ?)",
+      "INSERT INTO credentials (id, public_key, counter, transports, device_type, backed_up, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
     ).bind(
       credential.id,
       base64url(credential.publicKey),

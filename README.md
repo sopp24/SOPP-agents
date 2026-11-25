@@ -25,6 +25,10 @@ Pour l'intégrer dans une application, ajouter le lien portant la classe `.sopp-
 <script src="https://sopp24.github.io/SOPP-agents/sopp-home-float.js" defer></script>
 ```
 
+## Verrouillage
+
+L'accès à la bibliothèque est protégé par Face ID, Touch ID ou Windows Hello ; les applications ActuSUP, DRESSOPP, G.E.N.I.S, PEPPER, RugbyXVNews et SOPP-Language ne s'ouvrent qu'à travers SOPP Agents. Détails, limites et mise en service du serveur d'authentification : [SECURITY.md](SECURITY.md) et [cloudflare-auth/README.md](cloudflare-auth/README.md).
+
 ## Développement
 
 Le site est statique et ne nécessite aucune compilation JavaScript. Les fichiers principaux sont `index.html`, `styles.css` et `app.js`. Le fond est un SVG créé pour le site (`assets/chrome-wave.svg`) afin de rester net sur les écrans haute définition.

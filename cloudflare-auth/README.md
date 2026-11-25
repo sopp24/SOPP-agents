@@ -9,9 +9,9 @@ Ce service ajoute une vérification WebAuthn côté serveur. Il est volontaireme
 - Vérification des attestations et signatures avec `@simplewebauthn/server`.
 - Clés publiques, compteurs et challenges stockés dans D1.
 - Challenge à usage unique, expiration après 5 minutes.
-- Session signée côté serveur, valable 10 minutes.
-- Limitation de fréquence : 12 requêtes par fenêtre de 10 minutes et par adresse IP.
-- Inscription initiale protégée par un secret Cloudflare et désactivée après l'enregistrement du premier authentificateur.
+- Session signée côté serveur, valable 8 heures.
+- Limitation de fréquence : 60 requêtes par fenêtre de 10 minutes et par adresse IP (sauf la simple vérification d'un jeton, `/session`).
+- Inscription de chaque appareil (Face ID sur iPhone, Touch ID sur Mac…) protégée par le secret `ENROLLMENT_SECRET`, jusqu'à 5 appareils ; identifiant utilisateur aléatoire par appareil pour que les passkeys ne s'écrasent pas via le trousseau iCloud.
 - CORS limité à l'origine GitHub Pages exacte.
 
 Le service authentifie l'accès au hub. Il ne rend pas privés les fichiers statiques de GitHub Pages ni les applications externes liées dans le catalogue. Pour protéger également ces applications, elles devront chacune vérifier une session ou être servies derrière un proxy authentifié.
@@ -39,7 +39,16 @@ Une fois le Worker déployé, son URL doit répondre à :
 
 Réponse attendue : `{"status":"ok","service":"sopp-agents-auth"}`.
 
-Ne raccorde pas encore le site tant que cette vérification ne fonctionne pas. La prochaine étape sera de raccorder `biometric-lock.js` au Worker, d'ajouter un champ de saisie du code d'inscription initiale, puis de tester l'inscription et l'authentification sur iPhone. L'ancien verrou restera disponible comme solution de repli pendant la phase de test.
+Ne raccorde pas encore le site tant que cette vérification ne fonctionne pas. ## Raccordement du site au Worker
+
+`biometric-lock.js` sait déjà dialoguer avec le Worker (champ « Code d'inscription », lien « Ajouter cet appareil », vérification de la signature côté serveur). Il reste en **mode local** tant que la constante `AUTH_URL` (en haut du fichier) est vide.
+
+1. Déploie le Worker et vérifie `/health` (voir plus haut). Si le Worker avait déjà été déployé avec l'ancien schéma à une seule clé, exécute une fois `npx wrangler d1 execute sopp-agents-auth --remote --file=./migrations/0002_multi_device.sql`.
+2. Renseigne `AUTH_URL` dans `biometric-lock.js` avec l'adresse du Worker, puis déploie le hub.
+3. Sur chaque appareil : ouvre SOPP Agents, clique sur « Ajouter cet appareil », saisis `ENROLLMENT_SECRET`, puis crée la clé Face ID / Touch ID.
+4. Renseigne la même adresse dans la constante `AUTH_URL` de `sopp-gate.js` de chaque application verrouillée (ActuSUP, DRESSOPP, G.E.N.I.S, PEPPER, RugbyXVNews, SOPP-Language) : elles vérifient alors le jeton auprès du Worker et refusent les jetons « locaux ».
+
+Le secret d'inscription n'apparaît jamais dans le dépôt : il n'existe que dans les secrets Cloudflare et dans ta tête.
 
 ## Endpoints
 
@@ -57,6 +66,5 @@ Les challenges sont à usage unique et expirent après cinq minutes. La session 
 - La clé privée biométrique reste dans l'authentificateur de l'appareil.
 - Seule la clé publique est stockée dans D1.
 - La vérification de signature, de challenge, d'origine, de RP ID et de présence utilisateur est faite côté Worker.
-- Le secret d'inscription ne doit être utilisé qu'une fois, pour le premier appareil.
-- Une procédure de récupération ou d'ajout d'un second appareil devra être conçue séparément et protégée par une authentification déjà valide.
+- Le secret d'inscription n'est demandé qu'à l'ajout d'un appareil ; change-le dans Cloudflare s'il a pu être exposé.
 - Les applications externes et les dépôts publics restent accessibles directement tant qu'ils ne sont pas protégés indépendamment.

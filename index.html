@@ -21,6 +21,7 @@
   <meta name="msapplication-TileImage" content="assets/mstile-150x150.png?v=20261102-2">
   <meta name="msapplication-config" content="browserconfig.xml">
   <meta name="color-scheme" content="dark">
+  <meta name="robots" content="noindex, nofollow">
   <link rel="preload" href="assets/chrome-wave.svg" as="image" type="image/svg+xml">
   <link rel="stylesheet" href="styles.css">
   <script src="biometric-lock.js" defer></script>
@@ -41,7 +42,9 @@
       <p class="biometric-lock-eyebrow">ACCÈS SÉCURISÉ</p>
       <h2 id="biometric-lock-title">SOPP Agents</h2>
       <p id="biometric-lock-message" class="biometric-lock-message">Déverrouille ta bibliothèque pour continuer.</p>
+      <input id="biometric-lock-code" class="biometric-lock-code" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Code d’inscription" aria-label="Code d’inscription" hidden>
       <button id="biometric-lock-action" class="biometric-lock-action" type="button">Activer Face ID</button>
+      <button id="biometric-lock-enroll" class="biometric-lock-link" type="button" hidden>Ajouter cet appareil</button>
       <p id="biometric-lock-status" class="biometric-lock-status" role="status" aria-live="polite"></p>
       <p class="biometric-lock-note">Face ID ou Touch ID est utilisé selon les capacités de ton appareil.</p>
     </section>

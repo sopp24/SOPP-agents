@@ -1,8 +1,8 @@
 PRAGMA foreign_keys = ON;
 
+-- Un appareil = une ligne (Face ID sur iPhone, Touch ID sur Mac, etc.), 5 au maximum.
 CREATE TABLE IF NOT EXISTS credentials (
-  slot INTEGER PRIMARY KEY CHECK (slot = 1),
-  id TEXT NOT NULL UNIQUE,
+  id TEXT PRIMARY KEY,
   public_key TEXT NOT NULL,
   counter INTEGER NOT NULL DEFAULT 0,
   transports TEXT NOT NULL DEFAULT '[]',
