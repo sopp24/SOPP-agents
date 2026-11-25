@@ -456,7 +456,7 @@
     const left = 30, right = 10, top = 12, bottom = 19;
     const plotWidth = width - left - right;
     const plotHeight = height - top - bottom;
-    const shown = readings.slice(-120);
+    const shown = readings.slice(-300);
     const values = shown.map((reading) => reading.value);
     const minScale = calibrated ? 30 : -90;
     const maxScale = calibrated ? 120 : -6;
