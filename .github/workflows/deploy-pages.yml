@@ -32,10 +32,7 @@ jobs:
           if-no-files-found: error
           retention-days: 30
 
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+  build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -44,20 +41,24 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.x"
-
       - name: Generate favicon and installation icons from logo-app.webp
         run: |
           python -m pip install --disable-pip-version-check Pillow
           python scripts/generate_icons.py
-
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
-
       - name: Upload site artifact
         uses: actions/upload-pages-artifact@v4
         with:
           path: .
 
+  deploy:
+    needs: build
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5
