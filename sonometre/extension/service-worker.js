@@ -37,6 +37,42 @@ async function requireDeezerTab(tabId) {
 }
 
 function readPlayerState() {
+  const player = window.dzPlayer;
+  if (player && typeof player.getCurrentSong === "function") {
+    try {
+      const item = player.getCurrentSong() || {};
+      const mediaType = typeof player.getMediaType === "function" ? player.getMediaType() : "song";
+      let title = item.SNG_TITLE || item.LIVESTREAM_TITLE || item.EPISODE_TITLE || "";
+      let artist = item.ART_NAME || item.SHOW_NAME || "";
+      let album = item.ALB_TITLE || item.ALB_NAME || item.SHOW_NAME || "";
+      let picture = "";
+      if (mediaType === "live_stream") {
+        picture = item.LIVESTREAM_IMAGE_MD5 ? "misc/" + item.LIVESTREAM_IMAGE_MD5 : "";
+      } else if (mediaType === "episode") {
+        const id = item.EPISODE_IMAGE_MD5 || item.SHOW_ART_MD5;
+        picture = id ? "talk/" + id : "";
+      } else if (item.ALB_PICTURE) {
+        picture = "cover/" + item.ALB_PICTURE;
+      }
+      const duration = typeof player.getDuration === "function" ? Number(player.getDuration()) || 0 : Number(item.DURATION) || 0;
+      const currentTime = typeof player.getPosition === "function" ? Number(player.getPosition()) || 0 : 0;
+      const cover = picture ? "https://e-cdns-images.dzcdn.net/images/" + picture + "/250x250-000000-80-0-0.jpg" : "";
+      return {
+        title,
+        artist,
+        album,
+        cover,
+        duration,
+        currentTime,
+        playing: typeof player.isPlaying === "function" ? Boolean(player.isPlaying()) : false,
+        url: location.href,
+        integration: "dzPlayer"
+      };
+    } catch (_) {
+      // Deezer peut charger son lecteur avant que toutes ses méthodes soient prêtes.
+    }
+  }
+
   const metadata = navigator.mediaSession && navigator.mediaSession.metadata;
   const media = Array.from(document.querySelectorAll("audio, video"));
   const activeMedia = media.find(item => !item.paused && !item.ended) || media.find(item => Number.isFinite(item.duration) && item.duration > 0);
@@ -54,32 +90,52 @@ function readPlayerState() {
   const timeline = document.querySelector('input[type="range"][aria-label*="progress" i],input[type="range"][aria-label*="position" i],[role="slider"][aria-label*="progress" i],[role="slider"][aria-label*="position" i]');
   const duration = activeMedia && Number.isFinite(activeMedia.duration) ? activeMedia.duration : (timeline ? Number(timeline.getAttribute("aria-valuemax") || timeline.max) || 0 : 0);
   const currentTime = activeMedia && Number.isFinite(activeMedia.currentTime) ? activeMedia.currentTime : (timeline ? Number(timeline.getAttribute("aria-valuenow") || timeline.value) || 0 : 0);
-  const playing = Boolean(
-    (navigator.mediaSession && navigator.mediaSession.playbackState === "playing") ||
-    (activeMedia && !activeMedia.paused && !activeMedia.ended)
-  );
+  const playing = Boolean((navigator.mediaSession && navigator.mediaSession.playbackState === "playing") || (activeMedia && !activeMedia.paused && !activeMedia.ended));
   return {
-    title: (metadata && metadata.title) || text([
-      '[data-testid*="track-title"]',
-      '[data-testid*="title"]',
-      '[class*="trackName"]',
-      '[class*="TrackName"]'
-    ]) || "",
-    artist: (metadata && metadata.artist) || text([
-      '[data-testid*="artist"]',
-      '[class*="artistName"]',
-      '[class*="ArtistName"]'
-    ]) || "",
+    title: (metadata && metadata.title) || text(['[data-testid*="track-title"]','[data-testid*="title"]','[class*="trackName"]','[class*="TrackName"]']) || "",
+    artist: (metadata && metadata.artist) || text(['[data-testid*="artist"]','[class*="artistName"]','[class*="ArtistName"]']) || "",
     album: (metadata && metadata.album) || "",
     cover: artwork || "",
     duration,
     currentTime,
     playing,
-    url: location.href
+    url: location.href,
+    integration: "dom-fallback"
   };
 }
 
 function performPlayerCommand(command, seconds) {
+  const player = window.dzPlayer;
+  if (player && player.control) {
+    try {
+      if (command === "PLAY") {
+        player.control.play();
+        return { ok: true, message: "Lecture demandée à Deezer.", integration: "dzPlayer" };
+      }
+      if (command === "PAUSE") {
+        player.control.pause();
+        return { ok: true, message: "Pause demandée à Deezer.", integration: "dzPlayer" };
+      }
+      if (command === "NEXT") {
+        player.control.nextSong();
+        return { ok: true, message: "Piste suivante demandée.", integration: "dzPlayer" };
+      }
+      if (command === "PREVIOUS") {
+        player.control.prevSong();
+        return { ok: true, message: "Piste précédente demandée.", integration: "dzPlayer" };
+      }
+      if (command === "SEEK") {
+        const duration = typeof player.getDuration === "function" ? Number(player.getDuration()) : 0;
+        if (!Number.isFinite(duration) || duration <= 0) return { ok: false, error: "Durée de piste indisponible pour déplacer la lecture." };
+        const ratio = Math.max(0, Math.min(1, (Number(seconds) || 0) / duration));
+        player.control.seek(ratio);
+        return { ok: true, message: "Position de lecture modifiée.", integration: "dzPlayer" };
+      }
+    } catch (error) {
+      return { ok: false, error: error && error.message ? error.message : "Le lecteur Deezer a refusé la commande." };
+    }
+  }
+
   const visible = (element) => {
     if (!element) return false;
     const rect = element.getBoundingClientRect();
@@ -110,7 +166,7 @@ function performPlayerCommand(command, seconds) {
       setter.call(range, String(value));
       range.dispatchEvent(new Event("input", { bubbles: true }));
       range.dispatchEvent(new Event("change", { bubbles: true }));
-      return { ok: true, message: "Position de lecture modifiée." };
+      return { ok: true, message: "Position de lecture modifiée.", integration: "dom-fallback" };
     }
     const sliders = Array.from(document.querySelectorAll('[role="slider"]')).filter(visible);
     const slider = sliders.find(element => /progress|position|seek|time|lecture|avancement|timeline/.test(labelOf(element)))
@@ -121,16 +177,15 @@ function performPlayerCommand(command, seconds) {
       const min = Number(slider.getAttribute("aria-valuemin")) || 0;
       const media = Array.from(document.querySelectorAll("audio, video")).find(item => Number.isFinite(item.duration) && item.duration > 0);
       const duration = media ? media.duration : max;
-      const target = duration > 0 ? targetSeconds / duration : (targetSeconds - min) / Math.max(1, max - min);
-      const ratio = Math.max(0, Math.min(1, target));
+      const ratio = Math.max(0, Math.min(1, duration > 0 ? targetSeconds / duration : (targetSeconds - min) / Math.max(1, max - min)));
       const x = rect.left + rect.width * ratio;
       const y = rect.top + rect.height / 2;
       slider.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true, clientX: x, clientY: y, pointerId: 1, pointerType: "mouse" }));
       slider.dispatchEvent(new MouseEvent("click", { bubbles: true, clientX: x, clientY: y }));
       slider.dispatchEvent(new PointerEvent("pointerup", { bubbles: true, clientX: x, clientY: y, pointerId: 1, pointerType: "mouse" }));
-      return { ok: true, message: "Position de lecture envoyée." };
+      return { ok: true, message: "Position de lecture envoyée.", integration: "dom-fallback" };
     }
-    return { ok: false, error: "Le lecteur Deezer ne rend pas sa barre de progression accessible à l'extension pour le moment." };
+    return { ok: false, error: "La barre de progression n'est pas accessible dans cette version du lecteur." };
   }
 
   const patterns = {
@@ -148,13 +203,10 @@ function performPlayerCommand(command, seconds) {
   const selectorMatch = (selectors[command] || []).map(selector => document.querySelector(selector)).find(visible);
   const buttons = Array.from(document.querySelectorAll('button,[role="button"]')).filter(visible);
   const match = selectorMatch || buttons.find(element => patterns[command] && patterns[command].test(labelOf(element)));
-  if (!match) {
-    return { ok: false, error: "Commande non trouvée dans l'interface Deezer. Le lecteur a peut-être changé ou sa langue n'est pas prise en charge." };
-  }
+  if (!match) return { ok: false, error: "Commande non trouvée dans l'interface Deezer." };
   match.click();
-  return { ok: true, message: command === "NEXT" ? "Piste suivante demandée." : command === "PREVIOUS" ? "Piste précédente demandée." : command === "PAUSE" ? "Pause demandée." : "Lecture demandée." };
+  return { ok: true, message: "Commande envoyée au lecteur Deezer.", integration: "dom-fallback" };
 }
-
 
 async function getPlayerState(tabId) {
   await requireDeezerTab(tabId);
