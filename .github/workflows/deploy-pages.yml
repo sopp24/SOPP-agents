@@ -1,4 +1,4 @@
-name: Deploy SOPP Agents to GitHub Pages
+name: Deploy SOPP Agents and package MEUST Companion
 
 on:
   push:
@@ -20,14 +20,14 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Package browser companion
+      - name: Package MEUST Deezer companion
         run: |
           cd sonometre
-          zip -r ../SOPP-dB-Deezer-Companion.zip extension
+          zip -r ../MEUST-Deezer-Companion.zip extension
       - name: Upload companion ZIP
         uses: actions/upload-artifact@v4
         with:
-          name: SOPP-dB-Deezer-Companion
+          name: MEUST-Deezer-Companion
           path: SOPP-dB-Deezer-Companion.zip
           if-no-files-found: error
           retention-days: 30
