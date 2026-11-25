@@ -15,6 +15,23 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  package-deezer-companion:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Package browser companion
+        run: |
+          cd sonometre
+          zip -r ../SOPP-dB-Deezer-Companion.zip extension
+      - name: Upload companion ZIP
+        uses: actions/upload-artifact@v4
+        with:
+          name: SOPP-dB-Deezer-Companion
+          path: SOPP-dB-Deezer-Companion.zip
+          if-no-files-found: error
+          retention-days: 30
+
   deploy:
     environment:
       name: github-pages
