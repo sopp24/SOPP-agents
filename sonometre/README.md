@@ -26,3 +26,16 @@ Aucun enregistrement audio n'est créé et aucun flux n'est envoyé à un serveu
 
 ## Source onglet
 Le navigateur demande à l'utilisateur de choisir le partage. Il ne permet pas à cette page de scanner automatiquement tous les onglets ouverts ni de lire de façon fiable le titre d'un onglet non choisi.
+
+
+## Mini-télécommande Deezer (facultative)
+Le panneau Deezer permet de choisir un onglet Deezer du même navigateur, d'afficher les métadonnées disponibles (titre, artiste, pochette et progression) et de demander lecture / pause / piste précédente / suivante / déplacement dans la piste.
+
+Pour cela, installe le compagnon Chrome ou Edge situé dans `extension/` :
+1. Télécharge et décompresse le compagnon.
+2. Ouvre `chrome://extensions` ou `edge://extensions`.
+3. Active le mode développeur, puis « Charger l'extension non empaquetée ».
+4. Sélectionne le dossier `extension`.
+5. Ouvre Deezer, lance une piste, puis recharge SOPP dB et clique sur « Connecter / actualiser ».
+
+Le compagnon utilise les permissions `tabs` et `scripting` pour rechercher les onglets Deezer et interagir avec leurs contrôles visibles. Les métadonnées et commandes sont traitées localement. Deezer ne propose pas d'API publique de contrôle de lecture ; l'intégration repose donc sur les éléments accessibles de l'interface et peut nécessiter une adaptation si Deezer la modifie. Elle ne pilote aucun autre appareil et ne contourne aucun abonnement.
