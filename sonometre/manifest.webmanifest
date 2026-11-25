@@ -1,7 +1,7 @@
 {
   "name": "SOPP dB — Sonomètre",
   "short_name": "SOPP dB",
-  "description": "Mesure le niveau sonore avec le microphone ou l'audio d'un onglet partagé.",
+  "description": "Sonomètre web, suivi d'exposition et mini-télécommande Deezer facultative.",
   "lang": "fr",
   "start_url": "./",
   "scope": "./",
