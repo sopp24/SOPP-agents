@@ -37,6 +37,7 @@
   let calibrationKey = "";
   let calibrationCapture = null;
   let calibrationTimer = null;
+  let calibrationRun = 0;
   let readings = [];
   let lastRawSamples = [];
   let installPrompt = null;
@@ -146,6 +147,15 @@
 
   function setMode(nextMode) {
     if (analyser) return;
+    rawReading = null;
+    currentDb = null;
+    readings = [];
+    elapsedBeforeStop = 0;
+    ui.elapsed.textContent = "00:00";
+    ui.minimum.textContent = "—";
+    ui.average.textContent = "—";
+    ui.maximum.textContent = "—";
+    ui.chartEmpty.hidden = false;
     mode = nextMode;
     ui.sourceOptions.forEach((button) => {
       const active = button.dataset.mode === mode;
@@ -298,7 +308,9 @@
     timer = null;
     if (calibrationTimer) window.clearTimeout(calibrationTimer);
     calibrationTimer = null;
+    calibrationRun++;
     calibrationCapture = null;
+    ui.calibrate.textContent = "Étalonner sur 5 secondes";
     if (startedAt) elapsedBeforeStop += (Date.now() - startedAt) / 1000;
     startedAt = 0;
     if (stream) stream.getTracks().forEach((track) => track.stop());
@@ -497,6 +509,7 @@
       return;
     }
     if (calibrationCapture) return;
+    const runId = ++calibrationRun;
     calibrationCapture = [];
     ui.calibrate.disabled = true;
     ui.calibrate.textContent = "Écoute de référence… 5 s";
@@ -511,6 +524,7 @@
     };
     calibrationTimer = window.setTimeout(tick, 1000);
     await new Promise((resolve) => window.setTimeout(resolve, 5200));
+    if (runId !== calibrationRun) return;
     const captured = calibrationCapture || [];
     calibrationCapture = null;
     if (captured.length < 5) {
