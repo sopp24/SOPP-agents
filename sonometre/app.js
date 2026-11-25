@@ -3,7 +3,7 @@
   const $ = (selector) => document.querySelector(selector);
   const ui = {
     sourceOptions: document.querySelectorAll(".source-option"),
-    micDetail: $("#mic-detail"), tabDetail: $("#tab-detail"), micSelect: $("#microphone-select"),
+    micDetail: $("#mic-detail"), tabDetail: $("#tab-detail"), micSelect: $("#microphone-select"), tabSourceLabel: $("#tab-source-label"),
     start: $("#start-button"), stop: $("#stop-button"), permission: $("#permission-message"),
     live: $("#live-indicator"), main: $("#main-reading"), unit: $("#reading-unit"),
     pill: $("#status-pill"), caption: $("#reading-caption"), fill: $("#meter-fill"), track: $("#meter-track"),
@@ -22,6 +22,7 @@
   let stream = null;
   let audioContext = null;
   let analyser = null;
+  let spectrumBuffer = null;
   let sourceNode = null;
   let timer = null;
   let startedAt = 0;
@@ -231,13 +232,14 @@
       activeDeviceId = audioTrack.getSettings().deviceId || "";
       sourceDescription = mode === "mic"
         ? (audioTrack.label || "Microphone de l'ordinateur")
-        : "Onglet choisi dans le sélecteur du navigateur";
+        : (ui.tabSourceLabel.value.trim() ? "Onglet partagé : " + ui.tabSourceLabel.value.trim() : "Onglet choisi dans le sélecteur du navigateur");
       audioContext = new (window.AudioContext || window.webkitAudioContext)();
       await audioContext.resume();
       sourceNode = audioContext.createMediaStreamSource(stream);
       analyser = audioContext.createAnalyser();
       analyser.fftSize = 8192;
       analyser.smoothingTimeConstant = 0.42;
+      spectrumBuffer = new Float32Array(analyser.frequencyBinCount);
       sourceNode.connect(analyser);
 
       const settings = audioTrack.getSettings();
@@ -278,6 +280,7 @@
       if (audioContext) await audioContext.close().catch(() => {});
       audioContext = null;
       analyser = null;
+      spectrumBuffer = null;
       sourceNode = null;
       setPermission(error && error.message ? error.message : "Impossible d'accéder à la source sonore. Vérifie les autorisations du navigateur.", "error");
       ui.sourceName.textContent = "Aucune source active";
@@ -306,6 +309,7 @@
     if (audioContext) await audioContext.close().catch(() => {});
     audioContext = null;
     analyser = null;
+    spectrumBuffer = null;
     sourceNode = null;
     ui.live.classList.remove("active");
     ui.live.innerHTML = "<i></i> EN PAUSE";
@@ -334,7 +338,8 @@
 
   function readAudioLevel() {
     if (!analyser || !audioContext) return;
-    const spectrum = new Float32Array(analyser.frequencyBinCount);
+    if (!spectrumBuffer || spectrumBuffer.length !== analyser.frequencyBinCount) spectrumBuffer = new Float32Array(analyser.frequencyBinCount);
+    const spectrum = spectrumBuffer;
     analyser.getFloatFrequencyData(spectrum);
     const hzPerBin = audioContext.sampleRate / analyser.fftSize;
     let weightedPower = 0;
@@ -417,7 +422,7 @@
     const values = recent.map((reading) => reading.value).filter(Number.isFinite);
     const minimum = Math.min.apply(null, values);
     const maximum = Math.max.apply(null, values);
-    const average = values.reduce((sum, value) => sum + value, 0) / values.length;
+    const average = 10 * Math.log10(values.reduce((sum, value) => sum + Math.pow(10, value / 10), 0) / values.length);
     ui.minimum.textContent = formatNumber(minimum, 1);
     ui.average.textContent = formatNumber(average, 1);
     ui.maximum.textContent = formatNumber(maximum, 1);
