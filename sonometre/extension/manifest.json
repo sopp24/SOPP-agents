@@ -1,0 +1,33 @@
+{
+  "manifest_version": 3,
+  "name": "SOPP dB — Deezer Companion",
+  "short_name": "SOPP Deezer",
+  "version": "1.0.0",
+  "description": "Ajoute une mini-télécommande Deezer à SOPP dB : lecture, pause, piste précédente/suivante, pochette et progression.",
+  "permissions": [
+    "tabs",
+    "scripting"
+  ],
+  "host_permissions": [
+    "https://www.deezer.com/*",
+    "https://deezer.com/*",
+    "https://sopp24.github.io/SOPP-agents/sonometre/*"
+  ],
+  "background": {
+    "service_worker": "service-worker.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://sopp24.github.io/SOPP-agents/sonometre/*"
+      ],
+      "js": [
+        "bridge.js"
+      ],
+      "run_at": "document_start"
+    }
+  ],
+  "action": {
+    "default_title": "SOPP dB — Deezer Companion"
+  }
+}
