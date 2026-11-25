@@ -172,6 +172,46 @@
       </article>
     </section>
 
+
+    <section class="deezer-panel panel" aria-labelledby="deezer-heading">
+      <div class="deezer-heading">
+        <div class="deezer-brand">
+          <span class="deezer-mark" aria-hidden="true">≋</span>
+          <div><h2 id="deezer-heading">Deezer Remote</h2><p>Mini-télécommande depuis SOPP dB</p></div>
+        </div>
+        <span id="deezer-connection-status" class="deezer-connection-status">EXTENSION NON CONNECTÉE</span>
+      </div>
+      <div class="deezer-connect-row">
+        <p id="deezer-message" role="status" aria-live="polite">Installe le compagnon Chrome/Edge, puis ouvre Deezer dans un autre onglet pour piloter ta musique ici.</p>
+        <div class="deezer-connect-actions">
+          <button id="deezer-refresh-button" class="subtle-button" type="button">Connecter / actualiser</button>
+          <a class="deezer-help-link" href="./extension/README.md" target="_blank" rel="noopener noreferrer">Installer le compagnon ↗</a>
+        </div>
+      </div>
+      <div id="deezer-player" class="deezer-player" hidden>
+        <div class="deezer-track">
+          <div class="deezer-cover-wrap"><img id="deezer-cover" class="deezer-cover" alt="Pochette de l'album" src="./icon.svg"><span class="deezer-cover-placeholder">♪</span></div>
+          <div class="deezer-track-copy"><strong id="deezer-track-title">Aucune musique détectée</strong><span id="deezer-track-artist">—</span><small id="deezer-track-album">—</small></div>
+          <a id="deezer-open-tab" class="deezer-open-tab" href="https://www.deezer.com/" target="_blank" rel="noopener noreferrer">Ouvrir ↗</a>
+        </div>
+        <div class="deezer-progress">
+          <span id="deezer-current-time">0:00</span>
+          <input id="deezer-seek" type="range" min="0" max="100" value="0" step="1" aria-label="Avancement de la musique" disabled>
+          <span id="deezer-duration">0:00</span>
+        </div>
+        <div class="deezer-controls">
+          <button id="deezer-previous" type="button" class="deezer-control" aria-label="Piste précédente" title="Piste précédente">|◀</button>
+          <button id="deezer-toggle" type="button" class="deezer-control primary" aria-label="Lecture / pause" title="Lecture / pause">▶</button>
+          <button id="deezer-next" type="button" class="deezer-control" aria-label="Piste suivante" title="Piste suivante">▶|</button>
+          <label class="deezer-tab-picker">ONGLET
+            <select id="deezer-tab-select" aria-label="Choisir l'onglet Deezer"></select>
+          </label>
+        </div>
+        <p id="deezer-control-feedback" class="deezer-control-feedback">Les commandes dépendent de la structure actuelle du lecteur Deezer.</p>
+      </div>
+      <p class="deezer-disclaimer">Contrôle local via une extension que tu installes toi-même. Les commandes agissent sur l'onglet Deezer choisi, pas sur un compte ou un appareil distant. L'accès à la progression et aux pochettes dépend des informations exposées par le lecteur.</p>
+    </section>
+
     <section class="exposure-panel panel">
       <div class="exposure-heading">
         <div><span class="step-index">06</span><h2>Comprendre ton exposition</h2></div>
