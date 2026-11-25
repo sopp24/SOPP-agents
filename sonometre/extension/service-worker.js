@@ -134,10 +134,10 @@ function performPlayerCommand(command, seconds) {
   }
 
   const patterns = {
-    PLAY: /(^|\\b)(play|lecture|reprendre|écouter)(\\b|$)/i,
-    PAUSE: /(^|\\b)(pause|mettre en pause)(\\b|$)/i,
-    NEXT: /(^|\\b)(next|suivant|piste suivante|titre suivant|skip)(\\b|$)/i,
-    PREVIOUS: /(^|\\b)(previous|précédent|précédente|piste précédente|titre précédent|back)(\\b|$)/i
+    PLAY: /(^|[^a-z])(play|lecture|reprendre|écouter)([^a-z]|$)/i,
+    PAUSE: /(^|[^a-z])(pause|mettre en pause)([^a-z]|$)/i,
+    NEXT: /(^|[^a-z])(next|suivant|piste suivante|titre suivant|skip)([^a-z]|$)/i,
+    PREVIOUS: /(^|[^a-z])(previous|précédent|précédente|piste précédente|titre précédent|back)([^a-z]|$)/i
   };
   const selectors = {
     PLAY: ['button[aria-label*="Play" i]','button[aria-label*="Lecture" i]','[data-testid*="play"]'],
