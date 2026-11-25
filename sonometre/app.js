@@ -928,7 +928,10 @@
     await deezerCommand(deezerLastState.playing ? "PAUSE" : "PLAY");
   });
   deezerUi.next.addEventListener("click", () => deezerCommand("NEXT"));
-  deezerUi.seek.addEventListener("change", () => deezerCommand("SEEK", { seconds: Number(deezerUi.seek.value) }));
+  deezerUi.seek.addEventListener("change", () => deezerCommand("SEEK", {
+    seconds: Number(deezerUi.seek.value),
+    duration: Number(deezerLastState && deezerLastState.duration) || 0
+  }));
   deezerUi.volume.addEventListener("input", () => {
     deezerUi.volumeValue.textContent = Math.round(Number(deezerUi.volume.value) || 0) + " %";
   });
