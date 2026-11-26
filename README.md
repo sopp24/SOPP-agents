@@ -18,9 +18,9 @@ La bibliothèque SOPP Agents référence neuf applications.
 
 ## Bouton de retour partagé
 
-Les applications qui affichent le bouton de retour vers SOPP Agents utilisent le script commun `sopp-home-float.js`. Il s'active lorsque l'application est ouverte avec le paramètre `?from=sopp-agents`. Un clic normal renvoie vers le hub ; un appui maintenu pendant 2 secondes permet de déplacer le bouton. Sa position est mémorisée localement et reste dans les limites de la fenêtre. Le bouton existant conserve son apparence et son logo.
+Les applications du hub chargent le script commun `sopp-home-float.js`. Il s'active lorsque l'application est ouverte avec le paramètre `?from=sopp-agents`. Le script crée automatiquement le bouton si la page ne le fournit pas déjà, applique la même apparence à tous les sites et conserve le logo SOPP. Un clic normal revient au hub ; un appui maintenu pendant **0,7 seconde** permet de déplacer le bouton. Sa position est mémorisée sur l'appareil et reste dans les limites de l'écran.
 
-Pour l'intégrer dans une application, ajouter le lien portant la classe `.sopp-home-float` et charger le script commun :
+Pour intégrer le bouton, charger simplement le script commun dans la page de l'application :
 
 ```html
 <script src="https://sopp24.github.io/SOPP-agents/sopp-home-float.js" defer></script>
