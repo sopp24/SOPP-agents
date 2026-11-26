@@ -1,53 +1,112 @@
 (() => {
   "use strict";
 
-  const button = document.querySelector(".sopp-home-float");
-  if (!button) return;
-
-  // Le bouton n'apparaît que lorsque l'application est ouverte depuis SOPP Agents.
+  // Le bouton est actif uniquement pour les applications ouvertes depuis SOPP Agents.
   const openedFromLibrary =
     new URLSearchParams(window.location.search).get("from") === "sopp-agents";
-
   if (!openedFromLibrary) return;
 
-  button.style.setProperty("display", "grid", "important");
-  button.setAttribute("aria-hidden", "false");
-  button.removeAttribute("tabindex");
-
+  const HUB_URL = "https://sopp24.github.io/SOPP-agents/";
+  const LOGO_URL = "https://sopp24.github.io/SOPP-agents/assets/brand-mark.webp";
   const STORAGE_KEY = "sopp-agents-home-button-position-v1";
-  const HOLD_DURATION = 1000;
+  const HOLD_DURATION = 700;
   const MOVE_THRESHOLD = 10;
   const EDGE_PADDING = 8;
 
-  // États visuels uniquement pendant le déplacement : le bouton conserve son design.
+  // Le script ajoute lui-même le bouton si une application ne fournit pas déjà son lien.
+  let button = document.querySelector(".sopp-home-float");
+  if (!button) {
+    button = document.createElement("a");
+    button.className = "sopp-home-float";
+    button.href = HUB_URL;
+    button.innerHTML = '<img src="' + LOGO_URL + '" alt="" aria-hidden="true">';
+    document.body.appendChild(button);
+  } else if (!button.querySelector("img")) {
+    const image = document.createElement("img");
+    image.src = LOGO_URL;
+    image.alt = "";
+    image.setAttribute("aria-hidden", "true");
+    button.appendChild(image);
+  }
+
+  button.href = HUB_URL;
+  button.title = "Retour à SOPP Agents · maintenir 0,7 s pour déplacer";
+  button.setAttribute("aria-label", "Retour à SOPP Agents. Maintenir 0,7 seconde pour déplacer le bouton.");
+  button.setAttribute("aria-hidden", "false");
+  button.setAttribute("aria-grabbed", "false");
+  button.removeAttribute("tabindex");
+  button.style.setProperty("display", "grid", "important");
+  button.style.setProperty("visibility", "visible", "important");
+  button.style.setProperty("pointer-events", "auto", "important");
+
+  // Une apparence commune, indépendante des styles propres à chaque application.
   const style = document.createElement("style");
   style.textContent = `
     .sopp-home-float {
+      position: fixed !important;
+      z-index: 99999 !important;
+      right: max(14px, env(safe-area-inset-right)) !important;
+      bottom: max(14px, env(safe-area-inset-bottom)) !important;
+      left: auto !important;
+      top: auto !important;
+      width: 56px !important;
+      height: 56px !important;
+      display: grid !important;
+      place-items: center !important;
+      box-sizing: border-box !important;
+      overflow: hidden !important;
+      border: 1px solid rgba(16,25,30,.14) !important;
+      border-radius: 50% !important;
+      background: #fff !important;
+      box-shadow: 0 8px 28px rgba(0,0,0,.28), 0 2px 7px rgba(0,0,0,.13) !important;
+      transform: none !important;
+      text-decoration: none !important;
       cursor: grab;
       touch-action: none;
       user-select: none;
       -webkit-user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      transition: transform .2s ease, box-shadow .2s ease;
     }
     .sopp-home-float img {
-      pointer-events: none;
+      display: block !important;
+      width: 78% !important;
+      height: 78% !important;
+      object-fit: contain !important;
+      pointer-events: none !important;
       user-select: none;
       -webkit-user-drag: none;
     }
+    .sopp-home-float:hover {
+      transform: scale(1.045) !important;
+      box-shadow: 0 12px 34px rgba(0,0,0,.34), 0 0 0 5px rgba(255,255,255,.12) !important;
+    }
     .sopp-home-float.is-positioned {
-      left: var(--sopp-home-float-left);
-      top: var(--sopp-home-float-top);
-      right: auto;
-      bottom: auto;
-      transform: none;
+      right: auto !important;
+      bottom: auto !important;
+      left: var(--sopp-home-float-left) !important;
+      top: var(--sopp-home-float-top) !important;
+      transform: none !important;
     }
     .sopp-home-float.is-positioned:hover {
-      transform: scale(1.045);
+      transform: scale(1.045) !important;
     }
     .sopp-home-float.is-dragging,
     .sopp-home-float.is-dragging:hover {
       cursor: grabbing;
-      transform: none;
-      transition: none;
+      transform: none !important;
+      transition: none !important;
+      box-shadow: 0 10px 30px rgba(0,0,0,.32) !important;
+    }
+    .sopp-home-float:focus-visible {
+      outline: 3px solid #7fd4e8 !important;
+      outline-offset: 4px !important;
+    }
+    @media (max-width: 420px) {
+      .sopp-home-float { width: 52px !important; height: 52px !important; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .sopp-home-float { transition: none !important; }
     }
   `;
   document.head.appendChild(style);
@@ -75,7 +134,7 @@
         JSON.stringify({ left: Math.round(rect.left), top: Math.round(rect.top) })
       );
     } catch (error) {
-      // Le déplacement reste fonctionnel même si le navigateur bloque le stockage local.
+      // Le bouton reste déplaçable même si le stockage local est indisponible.
     }
   }
 
@@ -86,7 +145,7 @@
         setPosition(saved.left, saved.top);
       }
     } catch (error) {
-      // Une préférence absente ou illisible laisse le bouton à son emplacement initial.
+      // Une préférence absente ou illisible laisse le bouton en bas à droite.
     }
   }
 
@@ -120,7 +179,7 @@
     try {
       button.setPointerCapture(event.pointerId);
     } catch (error) {
-      // Certains navigateurs peuvent refuser la capture ; le clic normal reste disponible.
+      // Le clic normal reste disponible si la capture n'est pas prise en charge.
     }
 
     holdTimer = window.setTimeout(() => {
@@ -139,7 +198,7 @@
     const deltaY = event.clientY - pointerStartY;
 
     if (!holdActivated) {
-      // Un mouvement avant les 2 secondes correspond à un geste normal, pas à un drag.
+      // Un déplacement trop important avant 0,7 s annule le maintien, pas le clic.
       if (Math.hypot(deltaX, deltaY) > MOVE_THRESHOLD) {
         pressCancelled = true;
         window.clearTimeout(holdTimer);
@@ -163,7 +222,6 @@
 
     if (!cancelled && (holdActivated || pressCancelled)) {
       suppressNextClick = true;
-      // Le navigateur émet le clic juste après pointerup ; on ne bloque que celui-ci.
       window.setTimeout(() => { suppressNextClick = false; }, 0);
     }
 
@@ -175,6 +233,8 @@
 
   button.addEventListener("pointerup", (event) => finishPointer(event));
   button.addEventListener("pointercancel", (event) => finishPointer(event, true));
+  button.addEventListener("lostpointercapture", (event) => finishPointer(event, true));
+  button.addEventListener("dragstart", (event) => event.preventDefault());
   button.addEventListener("click", (event) => {
     if (!suppressNextClick) return;
     suppressNextClick = false;
