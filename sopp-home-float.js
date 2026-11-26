@@ -102,6 +102,12 @@
       outline: 3px solid #7fd4e8 !important;
       outline-offset: 4px !important;
     }
+    @media (max-width: 760px) {
+      /* Laisse la place aux barres de navigation inférieures des applications. */
+      .sopp-home-float:not(.is-positioned) {
+        bottom: calc(86px + env(safe-area-inset-bottom)) !important;
+      }
+    }
     @media (max-width: 420px) {
       .sopp-home-float { width: 52px !important; height: 52px !important; }
     }
