@@ -165,3 +165,29 @@ html.biometric-locked body > :not(#biometric-lock) {
 html:not(.biometric-locked) .biometric-lock {
   display: none;
 }
+
+/* SOPP Agents — bibliothèque plus exploitable sur desktop et mobile */
+.page-content{width:min(100%,1440px);margin-inline:auto;padding-inline:clamp(14px,3vw,38px)}
+.topbar{min-height:72px;padding-inline:clamp(14px,3vw,38px)}
+.app-search{min-height:52px;font-size:16px}
+.results-heading,.library-toolbar{font-size:12px}
+.result-description,.result-hint,.results-hint{color:#b4b6bd;font-size:12px;line-height:1.55}
+.app-grid{grid-template-columns:repeat(auto-fill,minmax(min(100%,260px),1fr));gap:16px}
+.app-grid>*{min-width:0}
+.app-credit,.panel-footer,.page-footer{font-size:11px;color:#b1a39c}
+button,a{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+@media(max-width:720px){
+  .topbar{min-height:64px;gap:12px}
+  .page-content{padding:22px 14px calc(28px + env(safe-area-inset-bottom))}
+  .hero{gap:14px}
+  .library-panel{padding:clamp(14px,3vw,22px)}
+  .app-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+  .app-search{min-height:50px}
+  .library-toolbar{align-items:flex-start;gap:8px;flex-wrap:wrap}
+}
+@media(max-width:480px){
+  .page-content{padding-inline:12px}
+  .app-grid{grid-template-columns:minmax(0,1fr);gap:11px}
+  .library-panel{border-radius:18px}
+  .biometric-lock-card{width:calc(100% - 28px);padding:24px 18px}
+}
