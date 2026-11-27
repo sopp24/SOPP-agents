@@ -59,3 +59,46 @@
 .deezer-volume output{color:#c5b4a5;text-align:right;font-size:9px;font-variant-numeric:tabular-nums}
 .deezer-volume input:disabled{opacity:.35}
 @media(max-width:430px){.deezer-volume{grid-template-columns:44px minmax(0,1fr) 36px;gap:8px}}
+
+/* MEUST — Sonomètre : lecture des mesures et commandes tactiles */
+:root{--muted:#b0b6bd;--dim:#8b949e}
+.topbar{min-height:76px;padding-inline:clamp(14px,3vw,38px)}
+.shell{width:min(100%,1440px);margin-inline:auto;padding-inline:clamp(14px,2.6vw,34px)}
+.icon-button,.install-button,.primary-button,.button-play,.stop-button,.subtle-button,.text-button,.calibrate-button,.clear-calibration,.deezer-control{min-height:44px;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.icon-button{min-width:44px}
+.source-option{min-height:58px}
+.source-label,.section-note,.helper-text,.reading-caption,.signal-explainer,.calibration-intro{font-size:12px;line-height:1.55}
+.source-detail,.source-metadata,.stat-card small{color:#b0b6bd;font-size:11px}
+input,select,textarea{font-size:16px}
+.reference-input{min-height:46px}
+.meter-legend,.scale-labels{font-size:11px}
+.deezer-control-feedback,.deezer-disclaimer{font-size:10px;color:#a49aaa;line-height:1.55}
+@media(min-width:1000px){
+  .measurement-grid{grid-template-columns:minmax(0,1.15fr) minmax(320px,.85fr);gap:18px}
+  .meter-panel{min-width:0}
+  .stats-panel{min-width:0}
+}
+@media(max-width:760px){
+  .topbar{position:sticky;top:0;z-index:30}
+  .shell{padding-inline:13px;padding-bottom:calc(24px + env(safe-area-inset-bottom))}
+  .intro{gap:14px}
+  .intro-mark{width:64px;height:64px}
+  .source-options{gap:9px}
+  .source-option{min-height:62px;padding:12px}
+  .measurement-grid{grid-template-columns:minmax(0,1fr);gap:12px}
+  .reading-area{padding:18px 14px}
+  .primary-button,.button-play,.stop-button,.calibrate-button{min-height:48px}
+  .stats-actions{flex-wrap:wrap}
+  .stats-actions>*{flex:1 1 130px}
+  .chart-wrap{min-height:190px}
+}
+@media(max-width:430px){
+  .shell{padding-inline:11px}
+  .topbar{height:auto;min-height:66px;gap:8px}
+  .brand-copy small{font-size:10px}
+  .privacy-tag{font-size:10px}
+  .reading-area{padding:16px 12px}
+  .stats-cards{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .fine-adjust{gap:8px}
+  .fine-adjust button{min-width:44px;min-height:44px}
+}
